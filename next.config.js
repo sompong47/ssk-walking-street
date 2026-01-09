@@ -12,7 +12,7 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
-  webpack: (config: any, { isServer }: any) => {
+  webpack: (config, { isServer }) => {
     return config;
   },
 };

@@ -1,66 +1,171 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+'use client';
+
+import { useState, useEffect } from 'react';
+import Link from 'next/link';
+import { Stats } from '@/components/Stats';
+import styles from './home.module.css';
+
+interface DashboardStats {
+  totalLots: number;
+  availableLots: number;
+  bookedLots: number;
+  reservedLots: number;
+  totalRevenue: number;
+  totalBookings: number;
+  completedPayments: number;
+  pendingPayments: number;
+}
 
 export default function Home() {
+  const [stats, setStats] = useState<DashboardStats | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchStats();
+  }, []);
+
+  const fetchStats = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch('/api/dashboard/stats');
+      const data = await response.json();
+      if (data.success) {
+        setStats(data.data);
+      }
+    } catch (error) {
+      console.error('Error fetching stats:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className={styles.intro}>
-          <h1>To get started, edit the page.tsx file.</h1>
-          <p>
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Learning
-            </a>{" "}
-            center.
+    <div className={styles.container}>
+      {/* Hero Section */}
+      <section className={styles.hero}>
+        <div className={styles.heroContent}>
+          <h1 className={styles.heroTitle}>ตลาดถนนเดินศรีสะเกษ</h1>
+          <p className={styles.heroSubtitle}>
+            ระบบจองล็อคพื้นที่สะดวก รวดเร็ว และน่าเชื่อถือ
           </p>
+          <div className={styles.heroButtons}>
+            <Link href="/booking" className={styles.primaryBtn}>
+              ยืนยัน จองล็อค
+            </Link>
+            <Link href="/terms" className={styles.secondaryBtn}>
+              ดูข้อมูลเพิ่มเติม
+            </Link>
+          </div>
         </div>
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className={styles.secondary}
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+      </section>
+
+      {/* Stats Section */}
+      {!loading && stats && (
+        <section className={styles.statsSection}>
+          <h2 className={styles.sectionTitle}>สถิติระบบจองล็อค</h2>
+          <Stats stats={stats} />
+        </section>
+      )}
+
+      {/* Features Section */}
+      <section className={styles.features}>
+        <h2 className={styles.sectionTitle}>ทำไมต้องเลือกเรา</h2>
+        <div className={styles.featureGrid}>
+          <div className={styles.featureCard}>
+            <div className={styles.featureIcon}>📱</div>
+            <h3>ง่ายใช้</h3>
+            <p>ระบบจองออนไลน์ที่ใช้งานง่าย สามารถจองได้จากที่บ้าน</p>
+          </div>
+          <div className={styles.featureCard}>
+            <div className={styles.featureIcon}>⚡</div>
+            <h3>รวดเร็ว</h3>
+            <p>ได้รับการยืนยันทันทีหลังจากชำระเงินเรียบร้อย</p>
+          </div>
+          <div className={styles.featureCard}>
+            <div className={styles.featureIcon}>🔒</div>
+            <h3>ปลอดภัย</h3>
+            <p>ข้อมูลส่วนตัวของคุณได้รับการปกป้องอย่างเต็มที่</p>
+          </div>
+          <div className={styles.featureCard}>
+            <div className={styles.featureIcon}>💰</div>
+            <h3>ราคาเหมาะสม</h3>
+            <p>ราคาสำหรับผู้ค้าทั่วไป โปร่งใสไม่มีค่าเพิ่มเติม</p>
+          </div>
+          <div className={styles.featureCard}>
+            <div className={styles.featureIcon}>📞</div>
+            <h3>ช่วยเหลือ 24/7</h3>
+            <p>ทีมสนับสนุนพร้อมช่วยเหลือตลอดเวลา</p>
+          </div>
+          <div className={styles.featureCard}>
+            <div className={styles.featureIcon}>📍</div>
+            <h3>สถานที่ดี</h3>
+            <p>ตลาดอยู่ในตำแหน่งที่ดี เข้าออกสะดวก</p>
+          </div>
         </div>
-      </main>
+      </section>
+
+      {/* How It Works */}
+      <section className={styles.howItWorks}>
+        <h2 className={styles.sectionTitle}>วิธีการจอง</h2>
+        <div className={styles.stepsContainer}>
+          <div className={styles.step}>
+            <div className={styles.stepNumber}>1</div>
+            <h3>เลือกล็อค</h3>
+            <p>ดูแผนพื้นที่ทั้งหมดและเลือกล็อคที่ต้องการ</p>
+          </div>
+          <div className={styles.step}>
+            <div className={styles.stepNumber}>2</div>
+            <h3>กรอกข้อมูล</h3>
+            <p>กรอกข้อมูลส่วนตัวและข้อมูลธุรกิจของคุณ</p>
+          </div>
+          <div className={styles.step}>
+            <div className={styles.stepNumber}>3</div>
+            <h3>ชำระเงิน</h3>
+            <p>ชำระค่าจองล็อคผ่านช่องทางต่างๆ ที่เปิดให้บริการ</p>
+          </div>
+          <div className={styles.step}>
+            <div className={styles.stepNumber}>4</div>
+            <h3>ยืนยันสำเร็จ</h3>
+            <p>ได้รับการยืนยันและพร้อมใช้งานล็อคของคุณ</p>
+          </div>
+        </div>
+      </section>
+
+      {/* Quick Links */}
+      <section className={styles.quickLinks}>
+        <h2 className={styles.sectionTitle}>ลิงค์สำคัญ</h2>
+        <div className={styles.linksGrid}>
+          <Link href="/booking" className={styles.linkCard}>
+            <span className={styles.linkIcon}>📋</span>
+            <h3 className={styles.linkCardTitle}>จองล็อค</h3>
+            <p className={styles.linkCardDescription}>เลือกและจองล็อคพื้นที่</p>
+          </Link>
+          <Link href="/my-bookings" className={styles.linkCard}>
+            <span className={styles.linkIcon}>✅</span>
+            <h3 className={styles.linkCardTitle}>การจองของฉัน</h3>
+            <p className={styles.linkCardDescription}>ดูและจัดการการจอง</p>
+          </Link>
+          <Link href="/payment" className={styles.linkCard}>
+            <span className={styles.linkIcon}>💳</span>
+            <h3 className={styles.linkCardTitle}>ประวัติการชำระ</h3>
+            <p className={styles.linkCardDescription}>ดูประวัติการชำระเงิน</p>
+          </Link>
+          <Link href="/contact" className={styles.linkCard}>
+            <span className={styles.linkIcon}>📞</span>
+            <h3 className={styles.linkCardTitle}>ติดต่อเรา</h3>
+            <p className={styles.linkCardDescription}>ส่งข้อความหรือเรียกหา</p>
+          </Link>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <section className={styles.footer}>
+        <p>&copy; 2026 ตลาดถนนเดินศรีสะเกษ. สงวนลิขสิทธิ์ทั้งหมด</p>
+        <div className={styles.footerLinks}>
+          <Link href="/terms">เงื่อนไขการใช้บริการ</Link>
+          <Link href="/contact">ติดต่อเรา</Link>
+        </div>
+      </section>
     </div>
   );
 }

@@ -1,0 +1,228 @@
+.container {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.backBtn {
+  background: none;
+  border: none;
+  color: #3498db;
+  cursor: pointer;
+  font-size: 16px;
+  padding: 10px 0;
+  margin-bottom: 20px;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.content {
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  gap: 30px;
+  align-items: start;
+}
+
+.mainInfo {
+  background: white;
+  border-radius: 8px;
+  padding: 30px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.mainInfo h1 {
+  color: #2c3e50;
+  margin-bottom: 20px;
+  font-size: 32px;
+}
+
+.infoGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.infoItem {
+  padding: 15px;
+  background: #f8f9fa;
+  border-radius: 6px;
+}
+
+.infoItem label {
+  display: block;
+  color: #7f8c8d;
+  font-size: 12px;
+  font-weight: bold;
+  margin-bottom: 5px;
+  text-transform: uppercase;
+}
+
+.infoItem span {
+  display: block;
+  color: #2c3e50;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.status {
+  padding: 5px 10px;
+  border-radius: 4px;
+  font-size: 14px;
+  display: inline-block;
+
+  &.available {
+    background: #27ae60;
+    color: white;
+  }
+
+  &.booked {
+    background: #e74c3c;
+    color: white;
+  }
+
+  &.reserved {
+    background: #f39c12;
+    color: white;
+  }
+}
+
+.price {
+  color: #27ae60;
+  font-size: 20px;
+}
+
+.description {
+  margin-bottom: 30px;
+  padding: 20px;
+  background: #ecf0f1;
+  border-left: 4px solid #3498db;
+  border-radius: 4px;
+}
+
+.description h3,
+.amenities h3 {
+  color: #2c3e50;
+  margin-bottom: 10px;
+}
+
+.amenities {
+  margin-bottom: 20px;
+}
+
+.amenities ul {
+  list-style: none;
+  padding: 0;
+}
+
+.amenities li {
+  padding: 8px 0;
+  border-bottom: 1px solid #ecf0f1;
+  color: #555;
+}
+
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  position: sticky;
+  top: 20px;
+}
+
+.bookingCard {
+  background: white;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.bookingCard h3 {
+  color: #2c3e50;
+  margin-bottom: 15px;
+}
+
+.bookBtn {
+  width: 100%;
+  padding: 12px;
+  background: #3498db;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: bold;
+  transition: background 0.3s;
+
+  &:hover {
+    background: #2980b9;
+  }
+}
+
+.unavailable {
+  color: #e74c3c;
+  font-weight: bold;
+}
+
+.locationInfo {
+  background: white;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.locationInfo h3 {
+  color: #2c3e50;
+  margin-bottom: 10px;
+  font-size: 14px;
+}
+
+.locationInfo p {
+  color: #555;
+}
+
+.notFound {
+  text-align: center;
+  padding: 60px 20px;
+}
+
+.notFound h2 {
+  color: #e74c3c;
+  margin-bottom: 20px;
+}
+
+.notFound button {
+  padding: 10px 20px;
+  background: #3498db;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.loading {
+  text-align: center;
+  padding: 60px 20px;
+  color: #3498db;
+  font-size: 18px;
+}
+
+@media (max-width: 768px) {
+  .content {
+    grid-template-columns: 1fr;
+  }
+
+  .infoGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .mainInfo {
+    padding: 20px;
+  }
+
+  .sidebar {
+    position: static;
+  }
+}
