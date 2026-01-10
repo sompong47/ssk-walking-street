@@ -3,21 +3,8 @@
 import { useState, useEffect } from 'react';
 import { LotGrid } from '@/components/LotGrid';
 import { BookingForm } from '@/components/BookingForm';
+import type { ILot } from '@/lib/models/Lot';
 import styles from './booking.module.css';
-
-// ... (Interface ILot เดิมของคุณ) ...
-interface ILot {
-  _id: string;
-  lotNumber: string;
-  section: string;
-  status: 'available' | 'reserved' | 'booked';
-  price: number;
-  size: number;
-  width?: number;
-  length?: number;
-  location: string;
-  vendor?: string;
-}
 
 export default function BookingPage() {
   const [lots, setLots] = useState<ILot[]>([]);
@@ -49,7 +36,6 @@ export default function BookingPage() {
     // เงื่อนไข: เวลา 07:00 ถึง 19:59 (ก่อน 20:00)
     const isOpenHours = hour >= 7 && hour < 20;
 
-    // *สำหรับการทดสอบ (Dev Mode): คุณอาจจะแก้เป็น true ชั่วคราวตรงนี้*
     if (isWeekday && isOpenHours) {
       setIsSystemOpen(true);
       setTimeMessage('');
@@ -65,8 +51,6 @@ export default function BookingPage() {
       const response = await fetch('/api/lots?limit=100'); // ดึงทั้งหมดมาแสดง
       const data = await response.json();
       if (data.success) {
-        // แนะนำ: เรียงลำดับตามเลข Lot ก่อนส่งไป Grid
-        // const sortedLots = data.data.lots.sort((a: any, b: any) => a.lotNumber.localeCompare(b.lotNumber, undefined, { numeric: true }));
         setLots(data.data.lots);
       }
     } catch (error) {
@@ -84,18 +68,11 @@ export default function BookingPage() {
   return (
     <div className={styles.container}>
       <div className={styles.header}>
-        <h1>จองล็อคตลาดถนนเดินศรีสะเกษ</h1>
-        
-        {/* แสดงสถานะเวลา */}
+        <h1>🛣️ จองล็อคตลาดถนนเดินศรีสะเกษ</h1>
+        <p>คลิกที่ล็อคบนผังถนนเพื่อเลือก แล้วกรอกข้อมูลที่ฝั่งทางเท้า</p>
+
         {!isSystemOpen && (
-          <div style={{ 
-            backgroundColor: '#fff3cd', 
-            color: '#856404', 
-            padding: '10px', 
-            borderRadius: '5px',
-            marginTop: '10px',
-            border: '1px solid #ffeeba'
-          }}>
+          <div className={styles.notice}>
             {timeMessage}
           </div>
         )}
@@ -106,38 +83,33 @@ export default function BookingPage() {
       ) : (
         <div className={styles.content}>
           <div className={styles.gridSection}>
-            {/* ส่ง props isSystemOpen ไปด้วย */}
-            <LotGrid 
-              lots={lots} 
-              selectedLot={selectedLot} 
-              onSelectLot={setSelectedLot} 
-              isSystemOpen={isSystemOpen}
-            />
+            <div className={styles.streetArea}>
+              <LotGrid 
+                lots={lots} 
+                selectedLot={selectedLot} 
+                onSelectLot={(lot: ILot) => setSelectedLot(lot)} 
+                isSystemOpen={isSystemOpen}
+              />
+            </div>
           </div>
           
-          <div className={styles.formSection}>
-            {/* ถ้ายังไม่เปิดจอง หรือยังไม่เลือกล็อค ให้แสดงข้อความแทนฟอร์ม */}
-            {isSystemOpen && selectedLot ? (
-               <BookingForm 
-                 selectedLot={selectedLot} 
-                 onSubmit={handleSubmit} 
-                 isLoading={isSubmitting}
-               />
-            ) : (
-               <div style={{
-                 padding: '30px',
-                 textAlign: 'center',
-                 color: '#6c757d',
-                 border: '2px dashed #dee2e6',
-                 borderRadius: '8px',
-                 backgroundColor: '#fff'
-               }}>
-                 {!isSystemOpen 
-                   ? 'ระบบปิดรับจองในขณะนี้' 
-                   : '👈 กรุณาคลิกเลือกล็อคจากแผนผังทางซ้ายมือ'}
-               </div>
-            )}
-          </div>
+          <aside className={styles.formSection}>
+            <div className={styles.sidewalkCard}>
+              {isSystemOpen && selectedLot ? (
+                 <BookingForm 
+                   selectedLot={selectedLot} 
+                   onSubmit={handleSubmit} 
+                   isLoading={isSubmitting}
+                 />
+              ) : (
+                 <div className={styles.placeholder}>
+                   {!isSystemOpen 
+                     ? 'ระบบปิดรับจองในขณะนี้' 
+                     : '👈 กรุณาคลิกเลือกล็อคจากผังถนนทางซ้ายมือ'}
+                 </div>
+              )}
+            </div>
+          </aside>
         </div>
       )}
     </div>
