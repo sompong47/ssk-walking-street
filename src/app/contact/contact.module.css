@@ -8,12 +8,14 @@
 
 /* ===== HERO SECTION ===== */
 .hero {
-  background: linear-gradient(135deg, #adb1c4 0%, #000000 100%);
+  background-image: 
+    url('/images/6.jpg');
   padding: 80px 20px;
   margin-bottom: 60px;
   position: relative;
   overflow: hidden;
 }
+
 
 .hero::before {
   content: '';
@@ -132,7 +134,7 @@
   left: 0;
   right: 0;
   height: 4px;
-  background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(90deg, #ced1df 0%, #07050a 100%);
   opacity: 0;
   transition: opacity 0.3s;
 }
