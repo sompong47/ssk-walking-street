@@ -179,6 +179,18 @@
   font-weight: 500;
 }
 
+/* ===== HEADER (from dashboardxtwo) ===== */
+.header h1 {
+  color: #ffffff;
+  margin-bottom: 10px;
+  font-size: 32px;
+}
+
+.header p {
+  color: #ffffff;
+  font-size: 16px;
+}
+
 .infoCardSubtitle {
   display: block;
   color: #95a5a6;

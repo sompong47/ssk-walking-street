@@ -24,6 +24,17 @@
 
 .headerContent p {
   margin: 0;
+}
+
+/* ===== HEADER (from other branch) ===== */
+.header h1 {
+  color: #ffffff;
+  margin-bottom: 10px;
+  font-size: 28px;
+}
+
+.header p {
+  color: #ffffff;
   font-size: 16px;
   opacity: 0.9;
 }

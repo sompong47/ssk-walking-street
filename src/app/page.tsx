@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Stats } from '@/components/Stats';
 import styles from './home.module.css';
+import { Smartphone, Zap, Lock, DollarSign, Clock, MapPin, FileText, CheckSquare, CreditCard, Phone } from 'lucide-react';
 
 interface DashboardStats {
   totalLots: number;
@@ -44,7 +45,7 @@ export default function Home() {
       {/* Hero Section */}
       <section className={styles.hero}>
         <div className={styles.heroContent}>
-          <h1 className={styles.heroTitle}>ตลาดถนนเดินศรีสะเกษ</h1>
+          <h1 className={styles.heroTitle}>ตลาดถนนคนเดินศรีสะเกษ</h1>
           <p className={styles.heroSubtitle}>
             ระบบจองล็อคพื้นที่สะดวก รวดเร็ว และน่าเชื่อถือ
           </p>
@@ -68,41 +69,53 @@ export default function Home() {
       )}
 
       {/* Features Section */}
-      <section className={styles.features}>
-        <h2 className={styles.sectionTitle}>ทำไมต้องเลือกเรา</h2>
-        <div className={styles.featureGrid}>
-          <div className={styles.featureCard}>
-            <div className={styles.featureIcon}>📱</div>
-            <h3>ง่ายใช้</h3>
-            <p>ระบบจองออนไลน์ที่ใช้งานง่าย สามารถจองได้จากที่บ้าน</p>
-          </div>
-          <div className={styles.featureCard}>
-            <div className={styles.featureIcon}>⚡</div>
-            <h3>รวดเร็ว</h3>
-            <p>ได้รับการยืนยันทันทีหลังจากชำระเงินเรียบร้อย</p>
-          </div>
-          <div className={styles.featureCard}>
-            <div className={styles.featureIcon}>🔒</div>
-            <h3>ปลอดภัย</h3>
-            <p>ข้อมูลส่วนตัวของคุณได้รับการปกป้องอย่างเต็มที่</p>
-          </div>
-          <div className={styles.featureCard}>
-            <div className={styles.featureIcon}>💰</div>
-            <h3>ราคาเหมาะสม</h3>
-            <p>ราคาสำหรับผู้ค้าทั่วไป โปร่งใสไม่มีค่าเพิ่มเติม</p>
-          </div>
-          <div className={styles.featureCard}>
-            <div className={styles.featureIcon}>📞</div>
-            <h3>ช่วยเหลือ 24/7</h3>
-            <p>ทีมสนับสนุนพร้อมช่วยเหลือตลอดเวลา</p>
-          </div>
-          <div className={styles.featureCard}>
-            <div className={styles.featureIcon}>📍</div>
-            <h3>สถานที่ดี</h3>
-            <p>ตลาดอยู่ในตำแหน่งที่ดี เข้าออกสะดวก</p>
-          </div>
-        </div>
-      </section>
+<section className={styles.features}>
+  <h2 className={styles.sectionTitle}>ทำไมต้องเลือกเรา</h2>
+  <div className={styles.featureGrid}>
+    <div className={styles.featureCard}>
+      <div className={styles.featureIcon}>
+        <Smartphone size={40} strokeWidth={1.5} />
+      </div>
+      <h3>ใช้ง่าย</h3>
+      <p>ระบบจองออนไลน์ที่ใช้งานง่าย สามารถจองได้จากที่บ้าน</p>
+    </div>
+    <div className={styles.featureCard}>
+      <div className={styles.featureIcon}>
+        <Zap size={40} strokeWidth={1.5} />
+      </div>
+      <h3>รวดเร็ว</h3>
+      <p>ได้รับการยืนยันทันทีหลังจากชำระเงินเรียบร้อย</p>
+    </div>
+    <div className={styles.featureCard}>
+      <div className={styles.featureIcon}>
+        <Lock size={40} strokeWidth={1.5} />
+      </div>
+      <h3>ปลอดภัย</h3>
+      <p>ข้อมูลส่วนตัวของคุณได้รับการปกป้องอย่างเต็มที่</p>
+    </div>
+    <div className={styles.featureCard}>
+      <div className={styles.featureIcon}>
+        <DollarSign size={40} strokeWidth={1.5} />
+      </div>
+      <h3>ราคาเหมาะสม</h3>
+      <p>ราคาสำหรับผู้ค้าทั่วไป โปร่งใสไม่มีค่าเพิ่มเติม</p>
+    </div>
+    <div className={styles.featureCard}>
+      <div className={styles.featureIcon}>
+        <Clock size={40} strokeWidth={1.5} />
+      </div>
+      <h3>ช่วยเหลือ 24/7</h3>
+      <p>ทีมสนับสนุนพร้อมช่วยเหลือตลอดเวลา</p>
+    </div>
+    <div className={styles.featureCard}>
+      <div className={styles.featureIcon}>
+        <MapPin size={40} strokeWidth={1.5} />
+      </div>
+      <h3>สถานที่ดี</h3>
+      <p>ตลาดอยู่ในตำแหน่งที่ดี เข้าออกสะดวก</p>
+    </div>
+  </div>
+</section>
 
       {/* How It Works */}
       <section className={styles.howItWorks}>
@@ -132,31 +145,39 @@ export default function Home() {
       </section>
 
       {/* Quick Links */}
-      <section className={styles.quickLinks}>
-        <h2 className={styles.sectionTitle}>ลิงค์สำคัญ</h2>
-        <div className={styles.linksGrid}>
-          <Link href="/booking" className={styles.linkCard}>
-            <span className={styles.linkIcon}>📋</span>
-            <h3 className={styles.linkCardTitle}>จองล็อค</h3>
-            <p className={styles.linkCardDescription}>เลือกและจองล็อคพื้นที่</p>
-          </Link>
-          <Link href="/my-bookings" className={styles.linkCard}>
-            <span className={styles.linkIcon}>✅</span>
-            <h3 className={styles.linkCardTitle}>การจองของฉัน</h3>
-            <p className={styles.linkCardDescription}>ดูและจัดการการจอง</p>
-          </Link>
-          <Link href="/payment" className={styles.linkCard}>
-            <span className={styles.linkIcon}>💳</span>
-            <h3 className={styles.linkCardTitle}>ประวัติการชำระ</h3>
-            <p className={styles.linkCardDescription}>ดูประวัติการชำระเงิน</p>
-          </Link>
-          <Link href="/contact" className={styles.linkCard}>
-            <span className={styles.linkIcon}>📞</span>
-            <h3 className={styles.linkCardTitle}>ติดต่อเรา</h3>
-            <p className={styles.linkCardDescription}>ส่งข้อความหรือเรียกหา</p>
-          </Link>
-        </div>
-      </section>
+<section className={styles.quickLinks}>
+  <h2 className={styles.sectionTitle}>ลิงค์สำคัญ</h2>
+  <div className={styles.linksGrid}>
+    <Link href="/booking" className={styles.linkCard}>
+      <span className={styles.linkIcon}>
+        <FileText size={32} strokeWidth={1.5} />
+      </span>
+      <h3 className={styles.linkCardTitle}>จองล็อค</h3>
+      <p className={styles.linkCardDescription}>เลือกและจองล็อคพื้นที่</p>
+    </Link>
+    <Link href="/my-bookings" className={styles.linkCard}>
+      <span className={styles.linkIcon}>
+        <CheckSquare size={32} strokeWidth={1.5} />
+      </span>
+      <h3 className={styles.linkCardTitle}>การจองของฉัน</h3>
+      <p className={styles.linkCardDescription}>ดูและจัดการการจอง</p>
+    </Link>
+    <Link href="/payment" className={styles.linkCard}>
+      <span className={styles.linkIcon}>
+        <CreditCard size={32} strokeWidth={1.5} />
+      </span>
+      <h3 className={styles.linkCardTitle}>ประวัติการชำระ</h3>
+      <p className={styles.linkCardDescription}>ดูประวัติการชำระเงิน</p>
+    </Link>
+    <Link href="/contact" className={styles.linkCard}>
+      <span className={styles.linkIcon}>
+        <Phone size={32} strokeWidth={1.5} />
+      </span>
+      <h3 className={styles.linkCardTitle}>ติดต่อเรา</h3>
+      <p className={styles.linkCardDescription}>ส่งข้อความหรือเรียกหา</p>
+    </Link>
+  </div>
+</section>
 
       {/* Footer */}
       <section className={styles.footer}>
