@@ -1,9 +1,15 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { Stats } from '@/components/Stats';
 import styles from './home.module.css';
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { Navigation, Pagination } from 'swiper/modules';
+import 'swiper/css';
+import 'swiper/css/navigation';
+import 'swiper/css/pagination';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { 
   MapPin, FileText, CheckSquare, CreditCard, 
   ArrowRight, Check, Sparkles, Star, DollarSign
@@ -24,6 +30,7 @@ export default function Home() {
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeStep, setActiveStep] = useState(0);
+  const swiperRef = useRef<any>(null);
 
   useEffect(() => {
     fetchStats();
