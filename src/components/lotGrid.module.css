@@ -1,134 +1,138 @@
-/* src/components/lotGrid.module.css */
-
-.container {
-  width: 100%;
-  padding: 20px;
-  background-color: #f8f9fa; /* สีพื้นหลังถนน */
-  border-radius: 12px;
-  overflow-x: auto; /* เลื่อนซ้ายขวาได้ในมือถือ */
-  border: 1px solid #e9ecef;
-}
-
-.roadContainer {
-  display: flex;
-  justify-content: center;
-  gap: 60px; /* ความกว้างของถนนตรงกลาง */
-  padding: 40px 20px;
-  position: relative;
-  min-width: 320px;
-}
-
-/* เส้นประกลางถนน */
-.roadContainer::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 50%;
-  width: 2px;
-  background-image: linear-gradient(to bottom, #ccc 50%, transparent 50%);
-  background-size: 2px 30px;
-  transform: translateX(-50%);
-  z-index: 0;
-}
-
-.lane {
-  display: flex;
-  flex-direction: column;
-  gap: 10px; /* ระยะห่างระหว่างล็อค */
-  width: 100px; /* ความกว้างของล็อค */
-  z-index: 1;
-}
-
-/* ป้ายบอกฝั่ง */
-.laneHeader {
-  text-align: center;
-  margin-bottom: 10px;
-  font-weight: bold;
-  color: #6c757d;
-  font-size: 0.9rem;
-}
-
-.lotButton {
-  width: 100%;
-  aspect-ratio: 2.4 / 3.5; /* สัดส่วนตามจริง 2.4x3.5m */
-  border: 2px solid #dee2e6;
-  border-radius: 6px;
-  background-color: white;
-  cursor: pointer;
-  transition: all 0.2s ease;
+/* พื้นหลังรวม */
+.mapWrapper {
+  background-color: #f8f9fa; /* สีเทาอ่อนๆ สบายตา */
+  padding: 30px;
+  border-radius: 16px;
+  height: 80vh;
+  overflow-y: auto;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  box-shadow: inset 0 0 20px rgba(0,0,0,0.02); /* เงาด้านในเบาๆ ให้ดูลึก */
+}
+
+.headerLabel, .footerLabel {
+  background: white;
+  padding: 8px 20px;
+  border-radius: 50px;
+  font-weight: bold;
+  color: #555;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  margin-bottom: 20px;
+  border: 1px solid #eee;
+  font-size: 0.9rem;
+}
+
+/* 🟢 Grid Layout: 7 คอลัมน์ที่สมบูรณ์ */
+.mainGridContainer {
+  display: grid;
+  /* ร้าน | ถนน(30px) | ร้าน | ช่องว่าง(10px) | ร้าน | ถนน(30px) | ร้าน */
+  grid-template-columns: 1fr 30px 1fr 10px 1fr 30px 1fr;
+  gap: 12px 0; /* ระยะห่างแนวตั้ง */
+  
+  width: 100%;
+  max-width: 900px;
+  min-width: 700px; /* กันบีบ */
+}
+
+/* คอลัมน์ร้านค้า */
+.stallColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 12px; /* ห่างกันพอดีๆ ไม่อึดอัด */
+}
+
+/* ถนน (เส้นประ) */
+.walkway {
+  background-color: #e2e8f0; /* สีถนนเทาอ่อน */
   position: relative;
-  font-size: 0.85rem;
-  color: #495057;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  border-radius: 6px;
+  height: 100%;
 }
 
-.lotButton:hover:not(:disabled) {
-  transform: scale(1.05);
-  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-  border-color: #adb5bd;
-  z-index: 10;
+.roadLine {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  border-left: 2px dashed #cbd5e0;
+  transform: translateX(-50%);
 }
 
-/* --- สถานะต่างๆ --- */
-.available {
-  background-color: #d4edda;
-  border-color: #c3e6cb;
-  color: #155724;
+/* ช่องว่างตรงกลาง (Gap) */
+.centerGap {
+  /* ไม่ต้องใสสี เป็นพื้นที่ว่างๆ */
 }
 
-.available:hover {
-  background-color: #c3e6cb;
-}
-
-.reserved {
-  background-color: #fff3cd;
-  border-color: #ffeeba;
-  color: #856404;
-  cursor: default;
-}
-
-.booked {
-  background-color: #f8d7da;
-  border-color: #f5c6cb;
-  color: #721c24;
-  cursor: default;
-  opacity: 0.8;
-}
-
-.selected {
-  background-color: #0d6efd !important;
-  border-color: #0d6efd !important;
-  color: white !important;
-  transform: scale(1.1);
-  box-shadow: 0 0 15px rgba(13, 110, 253, 0.4);
-  z-index: 20;
+/* 🟢 กล่องล็อค (ดีไซน์ใหม่) */
+.lotBox {
+  height: 60px; /* ใหญ่สะใจ */
+  background: white;
+  border: 2px solid #edf2f7;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column; /* เรียงเลขไว้บน ราคาไว้ล่าง */
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
 }
 
 .lotNumber {
-  font-weight: bold;
-  font-size: 1.1em;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #2d3748;
 }
 
 .lotPrice {
-  font-size: 0.75em;
-  opacity: 0.8;
+  font-size: 0.75rem;
+  color: #718096;
+  font-weight: 500;
 }
 
-/* สำหรับโซนที่ปิด (วันเสาร์) */
-.closedZone {
-  filter: grayscale(100%);
-  opacity: 0.3;
-  pointer-events: none;
-  background-image: repeating-linear-gradient(
-    45deg,
-    transparent,
-    transparent 10px,
-    #ccc 10px,
-    #ccc 20px
-  );
+.lotStatus {
+  font-size: 0.7rem;
+  color: #e53e3e;
+  font-weight: bold;
+}
+
+/* Effect สถานะต่างๆ */
+.available:hover {
+  border-color: #4299e1;
+  transform: translateY(-3px);
+  box-shadow: 0 10px 15px -3px rgba(66, 153, 225, 0.15);
+}
+
+.selected {
+  background: #3182ce;
+  border-color: #3182ce;
+  color: white;
+  transform: scale(1.02);
+  box-shadow: 0 4px 12px rgba(49, 130, 206, 0.4);
+}
+
+.selected .lotNumber, 
+.selected .lotPrice {
+  color: white;
+}
+
+.reserved {
+  background-color: #f7fafc;
+  border-color: #edf2f7;
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.reserved .lotNumber {
+  color: #cbd5e0;
+  text-decoration: line-through;
+}
+
+.empty {
+  text-align: center;
+  color: #ccc;
+  font-size: 12px;
+  padding: 20px;
 }

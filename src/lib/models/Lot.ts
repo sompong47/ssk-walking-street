@@ -1,51 +1,33 @@
-import { Schema, model, models } from 'mongoose';
+import mongoose, { Schema, Document } from 'mongoose';
 
-export interface ILot {
-  _id: string;
+export interface ILot extends Document {
   lotNumber: string;
-  section: string;
-  status: 'available' | 'reserved' | 'booked';
-  price: number;
-  size: number;
-  width?: number;
-  length?: number;
+  // 🟢 แก้: เปลี่ยน section เป็น 4 แถว
+  section: 'rowA' | 'rowB' | 'rowC' | 'rowD';
   location: string;
-  vendor?: string;
-  vendorPhone?: string;
-  description?: string;
-  amenities?: string[];
-  imageUrl?: string;
-  createdAt?: Date;
-  updatedAt?: Date;
+  size: string;
+  price: number;
+  status: 'available' | 'reserved' | 'maintenance';
+  zoneType: 'standard' | 'extended';
 }
 
-const LotSchema = new Schema<ILot>(
-  {
-    lotNumber: { 
-      type: String, 
-      required: true, 
-      unique: true,
-      index: true
-    },
-    section: { type: String, required: true, index: true },
-    status: {
-      type: String,
-      enum: ['available', 'reserved', 'booked'],
-      default: 'available',
-      index: true
-    },
-    price: { type: Number, required: true },
-    size: { type: Number, required: true },
-    width: { type: Number, default: 0 },
-    length: { type: Number, default: 0 },
-    location: { type: String, required: true },
-    vendor: { type: String, default: null },
-    vendorPhone: { type: String, default: null },
-    description: { type: String, default: null },
-    amenities: [{ type: String }],
-    imageUrl: { type: String, default: null },
+const LotSchema = new Schema<ILot>({
+  lotNumber: { type: String, required: true },
+  // 🟢 แก้: อัปเดต enum ให้ตรงกับ interface
+  section: { 
+    type: String, 
+    enum: ['rowA', 'rowB', 'rowC', 'rowD'], 
+    required: true 
   },
-  { timestamps: true }
-);
+  location: { type: String, required: true },
+  size: { type: String, required: true },
+  price: { type: Number, required: true },
+  status: { 
+    type: String, 
+    enum: ['available', 'reserved', 'maintenance'], 
+    default: 'available' 
+  },
+  zoneType: { type: String, enum: ['standard', 'extended'], required: true }, 
+});
 
-export const Lot = models.Lot || model<ILot>('Lot', LotSchema);
+export const Lot = mongoose.models.Lot || mongoose.model<ILot>('Lot', LotSchema);
