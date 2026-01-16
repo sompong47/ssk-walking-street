@@ -1,133 +1,119 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useParams, useRouter } from 'next/navigation';
-import styles from './payment-detail.module.css';
+import { useRouter } from 'next/navigation'; // ใช้ redirect หลังแจ้งโอน
+import styles from './payment.module.css'; // เดี๋ยวสร้างไฟล์ css นี้ต่อ
 
-interface Payment {
-  _id: string;
-  bookingId: string;
-  amount: number;
-  status: 'pending' | 'success' | 'failed';
-  paymentMethod?: string;
-  transactionId?: string;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export default function PaymentDetailPage() {
-  const params = useParams();
+export default function PaymentPage({ params }: { params: { id: string } }) {
   const router = useRouter();
-  const [payment, setPayment] = useState<Payment | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [booking, setBooking] = useState<any>(null);
+  const [file, setFile] = useState<File | null>(null);
+  const [preview, setPreview] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
+  // ดึงข้อมูลการจองมาแสดง (เช่น จ่ายค่าล็อค A05 ราคา 100 บาท)
   useEffect(() => {
-    fetchPaymentDetail();
+    fetch(`/api/bookings/${params.id}`) // ต้องมี API ดึง Booking by ID (เดี๋ยวพาทำถ้ายังไม่มี)
+      .then(res => res.json())
+      .then(data => {
+        if(data.success) setBooking(data.data);
+      });
   }, [params.id]);
 
-  const fetchPaymentDetail = async () => {
+  // ฟังก์ชันเลือกรูป
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const selectedFile = e.target.files[0];
+      setFile(selectedFile);
+      setPreview(URL.createObjectURL(selectedFile)); // โชว์ตัวอย่างรูป
+    }
+  };
+
+  // ฟังก์ชันกดแจ้งโอน
+  const handleSubmit = async () => {
+    if (!file) return alert('กรุณาแนบสลิปโอนเงิน');
+    setLoading(true);
+
     try {
-      setLoading(true);
-      const response = await fetch(`/api/payments/${params.id}`);
-      const data = await response.json();
-      if (data.success) {
-        setPayment(data.data);
+      // 1. อัปโหลดรูปก่อน
+      const formData = new FormData();
+      formData.set('file', file);
+      
+      const uploadRes = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData
+      });
+      const uploadData = await uploadRes.json();
+
+      if (!uploadData.success) throw new Error('อัปโหลดรูปไม่สำเร็จ');
+
+      // 2. อัปเดตข้อมูล Booking (บันทึก URL รูป และเปลี่ยนสถานะ)
+      const updateRes = await fetch(`/api/bookings/${params.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          slipUrl: uploadData.url,
+          paymentStatus: 'paid', // เปลี่ยนสถานะเป็น "แจ้งโอนแล้ว"
+          status: 'confirmed'    // หรือจะยังเป็น pending รอแอดมินกดก็ได้ แล้วแต่ Flow
+        })
+      });
+
+      if (updateRes.ok) {
+        alert('✅ แจ้งโอนเงินเรียบร้อย! กรุณารอเจ้าหน้าที่ตรวจสอบ');
+        router.push('/booking'); // กลับหน้าหลัก
       }
+
     } catch (error) {
-      console.error('Error fetching payment:', error);
+      alert('เกิดข้อผิดพลาด');
+      console.error(error);
     } finally {
       setLoading(false);
     }
   };
 
-  if (loading) {
-    return <div className={styles.loading}>กำลังโหลด...</div>;
-  }
-
-  if (!payment) {
-    return (
-      <div className={styles.container}>
-        <div className={styles.notFound}>
-          <h2>ไม่พบข้อมูลการชำระเงิน</h2>
-          <button onClick={() => router.back()}>กลับ</button>
-        </div>
-      </div>
-    );
-  }
+  if (!booking) return <div style={{textAlign:'center', marginTop:50}}>กำลังโหลด...</div>;
 
   return (
     <div className={styles.container}>
-      <button className={styles.backBtn} onClick={() => router.back()}>← กลับ</button>
-
-      <div className={styles.content}>
-        <div className={styles.mainInfo}>
-          <h1>รายละเอียดการชำระเงิน</h1>
-
-          <div className={styles.statusCard} style={{
-            borderLeftColor: payment.status === 'success' ? '#27ae60' : 
-                            payment.status === 'pending' ? '#f39c12' : '#e74c3c'
-          }}>
-            <div className={styles.statusLabel}>สถานะ</div>
-            <div className={styles.statusValue}>
-              {payment.status === 'success' && 'ชำระเงินสำเร็จ'}
-              {payment.status === 'pending' && 'รอการชำระเงิน'}
-              {payment.status === 'failed' && 'ล้มเหลว'}
-            </div>
-          </div>
-
-          <div className={styles.infoGrid}>
-            <div className={styles.infoItem}>
-              <label>ID การชำระเงิน</label>
-              <span>{payment._id}</span>
-            </div>
-            <div className={styles.infoItem}>
-              <label>ID การจอง</label>
-              <span>{payment.bookingId}</span>
-            </div>
-            <div className={styles.infoItem}>
-              <label>จำนวนเงิน</label>
-              <span className={styles.amount}>{payment.amount.toLocaleString()} บาท</span>
-            </div>
-            <div className={styles.infoItem}>
-              <label>วิธีการชำระ</label>
-              <span>{payment.paymentMethod || '-'}</span>
-            </div>
-            <div className={styles.infoItem}>
-              <label>วันที่สร้าง</label>
-              <span>{new Date(payment.createdAt).toLocaleDateString('th-TH')}</span>
-            </div>
-            <div className={styles.infoItem}>
-              <label>วันที่อัปเดต</label>
-              <span>{new Date(payment.updatedAt).toLocaleDateString('th-TH')}</span>
-            </div>
-          </div>
-
-          {payment.transactionId && (
-            <div className={styles.transactionInfo}>
-              <h3>หมายเลขอ้างอิงการทำธุรกรรม</h3>
-              <p>{payment.transactionId}</p>
-            </div>
-          )}
+      <div className={styles.card}>
+        <h1>💸 แจ้งชำระเงิน</h1>
+        
+        <div className={styles.infoBox}>
+           <p><strong>ล็อค:</strong> {booking.lotId?.lotNumber} ({booking.lotId?.section})</p>
+           <p><strong>ราคาต้องชำระ:</strong> <span className={styles.price}>{booking.lotId?.price} บาท</span></p>
+           <p><strong>ผู้จอง:</strong> {booking.vendorName}</p>
         </div>
 
-        <div className={styles.sidebar}>
-          {payment.status === 'pending' && (
-            <div className={styles.paymentCard}>
-              <h3>ชำระเงิน</h3>
-              <p>กรุณาชำระเงินจำนวน {payment.amount.toLocaleString()} บาท</p>
-              <button className={styles.payBtn}>ไปชำระเงิน</button>
-            </div>
-          )}
-          {payment.status === 'success' && (
-            <div className={styles.successCard}>
-              <h3>✓ ชำระเงินเสร็จสิ้น</h3>
-              <p>ขอบคุณสำหรับการชำระเงิน</p>
-              <button onClick={() => router.push('/my-bookings')}>
-                ดูการจองของฉัน
-              </button>
-            </div>
-          )}
+        <div className={styles.qrSection}>
+           {/* ใส่รูป QR Code จริงๆ ของคุณที่นี่ */}
+           <div className={styles.qrPlaceholder}>
+             <img src="https://upload.wikimedia.org/wikipedia/commons/d/d0/QR_code_for_mobile_English_Wikipedia.svg" alt="QR Code" width={150} />
+             <p>ธนาคารกสิกรไทย</p>
+             <p>เลขที่บัญชี: 123-4-56789-0</p>
+             <p>ชื่อบัญชี: ตลาดคนเดินศรีสะเกษ</p>
+           </div>
         </div>
+
+        <div className={styles.uploadSection}>
+           <label className={styles.fileLabel}>
+              {preview ? 'เปลี่ยนรูปสลิป' : '📷 แนบหลักฐานการโอนเงิน'}
+              <input type="file" accept="image/*" onChange={handleFileChange} hidden />
+           </label>
+
+           {preview && (
+             <div className={styles.previewBox}>
+               <img src={preview} alt="Slip Preview" />
+             </div>
+           )}
+        </div>
+
+        <button 
+          onClick={handleSubmit} 
+          disabled={loading}
+          className={styles.submitBtn}
+        >
+          {loading ? 'กำลังส่งข้อมูล...' : 'ยืนยันการโอนเงิน'}
+        </button>
       </div>
     </div>
   );

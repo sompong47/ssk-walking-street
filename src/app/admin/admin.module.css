@@ -1,0 +1,69 @@
+.adminContainer {
+  display: flex;
+  min-height: 100vh;
+  background-color: #f3f4f6;
+  font-family: 'Sarabun', sans-serif;
+}
+
+.sidebar {
+  width: 260px;
+  background-color: #1e293b;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  box-shadow: 4px 0 10px rgba(0,0,0,0.1);
+}
+
+.sidebarHeader {
+  margin-bottom: 30px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #334155;
+}
+
+.sidebarHeader h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  color: #60a5fa;
+}
+
+.sidebarHeader p {
+  margin: 5px 0 0;
+  font-size: 0.8rem;
+  color: #94a3b8;
+}
+
+.nav {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.navItem {
+  padding: 12px 15px;
+  border-radius: 8px;
+  color: #cbd5e1;
+  text-decoration: none;
+  transition: all 0.2s;
+  display: block;
+}
+
+.navItem:hover {
+  background-color: #334155;
+  color: white;
+  transform: translateX(5px);
+}
+
+.navItemLogout {
+  margin-top: auto;
+  padding: 12px 15px;
+  color: #ef4444;
+  text-decoration: none;
+  border-top: 1px solid #334155;
+}
+
+.mainContent {
+  flex: 1;
+  padding: 30px;
+  overflow-y: auto;
+}

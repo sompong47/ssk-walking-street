@@ -26,6 +26,7 @@ interface Booking {
 }
 
 export default function MyBookingsPage() {
+  // ✅ กำหนดค่าเริ่มต้นเป็น Array ว่างเสมอ
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('all');
@@ -45,11 +46,17 @@ export default function MyBookingsPage() {
       const query = filter !== 'all' ? `?status=${filter}` : '';
       const response = await fetch(`/api/bookings${query}`);
       const data = await response.json();
-      if (data.success) {
+      
+      // ✅ แก้ไข 1: เช็คว่า data.data เป็น Array จริงไหม ก่อน set state
+      if (data.success && Array.isArray(data.data)) {
         setBookings(data.data);
+      } else {
+        console.warn('API did not return an array:', data);
+        setBookings([]); // ถ้าไม่ใช่ Array ให้เซ็ตเป็นว่างเพื่อกันแอปพัง
       }
     } catch (error) {
       console.error('Error fetching bookings:', error);
+      setBookings([]); // กรณี Error ให้เซ็ตเป็นว่าง
     } finally {
       setLoading(false);
     }
@@ -130,25 +137,37 @@ export default function MyBookingsPage() {
     return days;
   };
 
-  const filteredAndSortedBookings = bookings
-    .filter(booking => 
-      booking.vendorName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      booking.lotId.lotNumber.includes(searchTerm) ||
-      booking.businessType.toLowerCase().includes(searchTerm.toLowerCase())
-    )
+  // ✅ แก้ไข 2: เพิ่มการตรวจสอบ Array.isArray(bookings) ก่อน filter
+  const safeBookings = Array.isArray(bookings) ? bookings : [];
+
+  const filteredAndSortedBookings = safeBookings
+    .filter(booking => {
+        // ✅ ป้องกันกรณี booking หรือ lotId เป็น null/undefined
+        if (!booking || !booking.lotId) return false;
+
+        return (
+            (booking.vendorName || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+            (booking.lotId.lotNumber || '').includes(searchTerm) ||
+            (booking.businessType || '').toLowerCase().includes(searchTerm.toLowerCase())
+        );
+    })
     .sort((a, b) => {
+      // ✅ ป้องกันกรณี lotId ไม่มีอยู่จริง
+      const priceA = a.lotId?.price || 0;
+      const priceB = b.lotId?.price || 0;
+
       if (sortBy === 'date') {
         return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
       } else {
-        return b.lotId.price - a.lotId.price;
+        return priceB - priceA;
       }
     });
 
   const stats = {
-    total: bookings.length,
-    confirmed: bookings.filter(b => b.status === 'confirmed').length,
-    pending: bookings.filter(b => b.status === 'pending').length,
-    cancelled: bookings.filter(b => b.status === 'cancelled').length,
+    total: safeBookings.length,
+    confirmed: safeBookings.filter(b => b.status === 'confirmed').length,
+    pending: safeBookings.filter(b => b.status === 'pending').length,
+    cancelled: safeBookings.filter(b => b.status === 'cancelled').length,
   };
 
   return (
@@ -241,7 +260,9 @@ export default function MyBookingsPage() {
           <div className={styles.emptyIcon}>📋</div>
           <h3>ไม่พบการจอง</h3>
           <p>คุณยังไม่มีการจองในระบบ</p>
-          <button className={styles.bookNowBtn}>จองล็อคเลย</button>
+          <button className={styles.bookNowBtn} onClick={() => window.location.href = '/booking'}>
+            จองล็อคเลย
+          </button>
         </div>
       ) : (
         <div className={styles.bookingsList}>
@@ -250,10 +271,11 @@ export default function MyBookingsPage() {
               <div className={styles.cardHeader}>
                 <div className={styles.headerLeft}>
                   <div className={styles.lotInfo}>
-                    <h3>ล็อค #{booking.lotId.lotNumber}</h3>
-                    <span className={styles.section}>{booking.lotId.section}</span>
+                    {/* ✅ ใช้ Optional Chaining ป้องกัน Error หาก lotId เป็น null */}
+                    <h3>ล็อค #{booking.lotId?.lotNumber || 'N/A'}</h3>
+                    <span className={styles.section}>{booking.lotId?.section || '-'}</span>
                   </div>
-                  {booking.lotId.size && (
+                  {booking.lotId?.size && (
                     <span className={styles.lotSize}>
                       <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
                         <path d="M2 2h12v12H2V2zm1 1v10h10V3H3z"/>
@@ -349,7 +371,8 @@ export default function MyBookingsPage() {
                   <div className={styles.priceDetails}>
                     <div className={styles.priceItem}>
                       <span>ราคาต่อเดือน</span>
-                      <span className={styles.priceValue}>{booking.lotId.price.toLocaleString()} บาท</span>
+                      {/* ✅ ป้องกัน Error ถ้า lotId หาย */}
+                      <span className={styles.priceValue}>{(booking.lotId?.price || 0).toLocaleString()} บาท</span>
                     </div>
                     <div className={styles.priceItem}>
                       <span>ระยะเวลา</span>
@@ -358,7 +381,7 @@ export default function MyBookingsPage() {
                     <div className={styles.totalPrice}>
                       <span>ยอดรวมทั้งหมด</span>
                       <span className={styles.totalAmount}>
-                        {(booking.totalAmount || booking.lotId.price * Math.ceil(calculateDuration(booking.startDate, booking.endDate) / 30)).toLocaleString()} บาท
+                        {(booking.totalAmount || (booking.lotId?.price || 0) * Math.ceil(calculateDuration(booking.startDate, booking.endDate) / 30)).toLocaleString()} บาท
                       </span>
                     </div>
                   </div>
@@ -442,7 +465,8 @@ export default function MyBookingsPage() {
               </button>
             </div>
             <div className={styles.modalBody}>
-              <p>คุณต้องการยกเลิกการจองล็อค #{selectedBooking.lotId.lotNumber} ใช่หรือไม่?</p>
+              {/* ✅ ใช้ Optional Chaining ที่ lotId */}
+              <p>คุณต้องการยกเลิกการจองล็อค #{selectedBooking.lotId?.lotNumber || 'N/A'} ใช่หรือไม่?</p>
               <div className={styles.formGroup}>
                 <label>เหตุผลในการยกเลิก *</label>
                 <textarea
