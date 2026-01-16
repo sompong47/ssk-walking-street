@@ -5,13 +5,13 @@ import styles from './payment.module.css';
 
 interface Payment {
   _id: string;
-  bookingId: {
+  bookingId?: { // ใส่ ? เผื่อ booking ถูกลบไปแล้ว
     _id: string;
-    lotId: {
+    lotId?: {
       lotNumber: string;
       section: string;
     };
-    vendorName: string;
+    vendorName?: string;
   };
   amount: number;
   status: 'pending' | 'success' | 'failed';
@@ -24,6 +24,7 @@ interface Payment {
 }
 
 export default function PaymentPage() {
+  // ✅ กำหนดค่าเริ่มต้นเป็น Array ว่างเสมอ
   const [payments, setPayments] = useState<Payment[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('all');
@@ -42,18 +43,23 @@ export default function PaymentPage() {
       const query = filter !== 'all' ? `?status=${filter}` : '';
       const response = await fetch(`/api/payments${query}`);
       const data = await response.json();
-      if (data.success) {
+      
+      // ✅ แก้ไข 1: เช็คว่าเป็น Array จริงไหม ก่อน set state
+      if (data.success && Array.isArray(data.data)) {
         setPayments(data.data);
+      } else {
+        console.warn('API returned invalid data:', data);
+        setPayments([]); // กันเหนียวไว้ก่อน
       }
     } catch (error) {
       console.error('Error fetching payments:', error);
+      setPayments([]);
     } finally {
       setLoading(false);
     }
   };
 
   const handlePayment = async (paymentId: string) => {
-    // Redirect to payment gateway or show payment modal
     alert(`เปิดหน้าชำระเงินสำหรับ ID: ${paymentId}`);
   };
 
@@ -67,51 +73,48 @@ export default function PaymentPage() {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'success':
-        return '#27ae60';
-      case 'pending':
-        return '#f39c12';
-      case 'failed':
-        return '#e74c3c';
-      default:
-        return '#95a5a6';
+      case 'success': return '#27ae60';
+      case 'pending': return '#f39c12';
+      case 'failed': return '#e74c3c';
+      default: return '#95a5a6';
     }
   };
 
   const getStatusText = (status: string) => {
     switch (status) {
-      case 'success':
-        return 'ชำระแล้ว';
-      case 'pending':
-        return 'รอชำระ';
-      case 'failed':
-        return 'ล้มเหลว';
-      default:
-        return status;
+      case 'success': return 'ชำระแล้ว';
+      case 'pending': return 'รอชำระ';
+      case 'failed': return 'ล้มเหลว';
+      default: return status;
     }
   };
 
   const getPaymentMethodIcon = (method: string) => {
-    switch (method.toLowerCase()) {
-      case 'credit card':
-        return '💳';
-      case 'bank transfer':
-        return '🏦';
-      case 'promptpay':
-        return '📱';
-      case 'cash':
-        return '💵';
-      default:
-        return '💰';
+    switch ((method || '').toLowerCase()) {
+      case 'credit card': return '💳';
+      case 'bank transfer': return '🏦';
+      case 'promptpay': return '📱';
+      case 'cash': return '💵';
+      default: return '💰';
     }
   };
 
-  const filteredPayments = payments
-    .filter(payment => 
-      payment.bookingId?.vendorName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      payment.transactionId?.includes(searchTerm) ||
-      payment._id.includes(searchTerm)
-    )
+  // ✅ แก้ไข 2: ใช้ safePayments เพื่อมั่นใจว่าเป็น Array แน่นอน
+  const safePayments = Array.isArray(payments) ? payments : [];
+
+  const filteredPayments = safePayments
+    .filter(payment => {
+      // ✅ ใช้ Optional Chaining ป้องกัน Error กรณี bookingId เป็น null
+      const vendorName = payment.bookingId?.vendorName || '';
+      const transId = payment.transactionId || '';
+      const id = payment._id || '';
+
+      return (
+        vendorName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        transId.includes(searchTerm) ||
+        id.includes(searchTerm)
+      );
+    })
     .sort((a, b) => {
       if (sortBy === 'date') {
         return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
@@ -120,15 +123,16 @@ export default function PaymentPage() {
       }
     });
 
+  // ✅ คำนวณ Stats อย่างปลอดภัย
   const stats = {
-    total: payments.reduce((sum, p) => sum + p.amount, 0),
-    success: payments.filter(p => p.status === 'success').reduce((sum, p) => sum + p.amount, 0),
-    pending: payments.filter(p => p.status === 'pending').reduce((sum, p) => sum + p.amount, 0),
+    total: safePayments.reduce((sum, p) => sum + (p.amount || 0), 0),
+    success: safePayments.filter(p => p.status === 'success').reduce((sum, p) => sum + (p.amount || 0), 0),
+    pending: safePayments.filter(p => p.status === 'pending').reduce((sum, p) => sum + (p.amount || 0), 0),
     count: {
-      all: payments.length,
-      success: payments.filter(p => p.status === 'success').length,
-      pending: payments.filter(p => p.status === 'pending').length,
-      failed: payments.filter(p => p.status === 'failed').length,
+      all: safePayments.length,
+      success: safePayments.filter(p => p.status === 'success').length,
+      pending: safePayments.filter(p => p.status === 'pending').length,
+      failed: safePayments.filter(p => p.status === 'failed').length,
     }
   };
 
@@ -273,7 +277,8 @@ export default function PaymentPage() {
                     <h3>
                       {getPaymentMethodIcon(payment.paymentMethod)} {payment.paymentMethod}
                     </h3>
-                    {payment.bookingId && (
+                    {/* ✅ ใช้ Optional Chaining ป้องกัน Error ถ้า bookingId หาย */}
+                    {payment.bookingId?.lotId && (
                       <span className={styles.lotInfo}>
                         ล็อค #{payment.bookingId.lotId.lotNumber} - {payment.bookingId.lotId.section}
                       </span>
@@ -308,7 +313,7 @@ export default function PaymentPage() {
                 </div>
 
                 <div className={styles.detailsGrid}>
-                  {payment.bookingId && (
+                  {payment.bookingId?.vendorName && (
                     <div className={styles.detail}>
                       <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
                         <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
