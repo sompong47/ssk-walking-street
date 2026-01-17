@@ -1,285 +1,344 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Stats } from '@/components/Stats';
-import styles from './home.module.css';
-import { Swiper, SwiperSlide } from 'swiper/react';
-import { Navigation, Pagination } from 'swiper/modules';
-import 'swiper/css';
-import 'swiper/css/navigation';
-import 'swiper/css/pagination';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { 
-  MapPin, FileText, CheckSquare, CreditCard, 
-  ArrowRight, Check, Sparkles, Star, DollarSign
-} from 'lucide-react';
+import styles from './page.module.css';
 
-interface DashboardStats {
-  totalLots: number;
-  availableLots: number;
-  bookedLots: number;
-  reservedLots: number;
-  totalRevenue: number;
-  totalBookings: number;
-  completedPayments: number;
-  pendingPayments: number;
+interface MarketInfo {
+  name: string;
+  nameEn: string;
+  description: string;
+  address: string;
+  district: string;
+  province: string;
+  postalCode: string;
+  phone: string;
+  email: string;
+  images: string[];
+  openingHours: {
+    day: string;
+    hours: string;
+  }[];
+  note: string;
 }
 
-export default function Home() {
-  const [stats, setStats] = useState<DashboardStats | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [activeStep, setActiveStep] = useState(0);
-  const swiperRef = useRef<any>(null);
+export default function MarketDetail() {
+  const [currentImage, setCurrentImage] = useState(0);
+  const [showFullImage, setShowFullImage] = useState(false);
+  const [activeDay, setActiveDay] = useState<string | null>(null);
 
-  useEffect(() => {
-    fetchStats();
-  }, []);
+  const marketInfo: MarketInfo = {
+    name: 'ตลาดถนนคนเดินศรีสะเกษ',
+    nameEn: 'Sisaket Walking Street Market',
+    description: 'ตลาดนัดกลางเมือง Street Food ศูนย์อาหารและร้านอาหาร ที่เต็มไปด้วยนักท่องเที่ยว ชาวพื้นที่ มีเฉพาะเมนูชั้นนำ จ่ายตรง ในราคาเป็นกันเอง มีให้เลือกเต็มไปหมด ร้านเยอะ เดินง่าย ราคาไม่แพง ช้อปปิ้งบรรจุภัณฑ์ โซนสตาเลีย',
+    address: 'ถนนเลี่ยงเมือง',
+    district: 'เมืองศรีสะเกษ',
+    province: 'ศรีสะเกษ',
+    postalCode: '33000',
+    phone: '087-123-4567',
+    email: 'info@ssk-market.com',
+    images: [
+        '/images/1.jpg',
+        '/images/2.jpg',
+        '/images/3.jpg',
+        '/images/4.jpg',
+        '/images/5.jpg'
+    ],
+    openingHours: [
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setActiveStep((prev) => (prev + 1) % 4);
-    }, 3000);
-    return () => clearInterval(interval);
-  }, []);
-
-  const fetchStats = async () => {
-    try {
-      setLoading(true);
-      const response = await fetch('/api/dashboard/stats');
-      const data = await response.json();
-      if (data.success) {
-        setStats(data.data);
-      }
-    } catch (error) {
-      console.error('Error fetching stats:', error);
-    } finally {
-      setLoading(false);
-    }
+      { day: 'วันเสาร์', hours: '14:00 น. - 22:00 น.' },
+      { day: 'วันอาทิตย์', hours: '14:00 น. - 22:00 น.' }
+    ],
+    note: 'หมายเหตุเวลาทำการ: ทุกวัน เวลา 14:00 - 22:00 น.'
   };
 
-  const steps = [
-    {
-      number: 1,
-      title: 'เลือกล็อค',
-      description: 'ดูแผนพื้นที่ทั้งหมดและเลือกล็อคที่ต้องการ',
-      icon: <MapPin className={styles.stepIconSvg} />,
-      details: [
-        'ดูแผนผังตลาดแบบ Interactive',
-        'เลือกตำแหน่งที่ต้องการ',
-        'ดูรายละเอียดล็อคแต่ละช่อง'
-      ]
-    },
-    {
-      number: 2,
-      title: 'กรอกข้อมูล',
-      description: 'กรอกข้อมูลส่วนตัวและข้อมูลธุรกิจของคุณ',
-      icon: <FileText className={styles.stepIconSvg} />,
-      details: [
-        'ข้อมูลส่วนตัวและติดต่อ',
-        'ประเภทสินค้าที่จะขาย',
-        'เอกสารประกอบการขออนุญาต'
-      ]
-    },
-    {
-      number: 3,
-      title: 'ชำระเงิน',
-      description: 'ชำระค่าจองล็อคผ่านช่องทางต่างๆ ที่เปิดให้บริการ',
-      icon: <CreditCard className={styles.stepIconSvg} />,
-      details: [
-        'โอนผ่านธนาคาร',
-        'QR Code พร้อมเพย์',
-        'บัตรเครดิต/เดบิต'
-      ]
-    },
-    {
-      number: 4,
-      title: 'ยืนยันสำเร็จ',
-      description: 'ได้รับการยืนยันและพร้อมใช้งานล็อคของคุณ',
-      icon: <CheckSquare className={styles.stepIconSvg} />,
-      details: [
-        'รับเลขที่การจองทันที',
-        'ดาวน์โหลดใบเสร็จ',
-        'เริ่มขายได้ทันที'
-      ]
-    }
-  ];
+  const nextImage = () => {
+    setCurrentImage((prev) => (prev + 1) % marketInfo.images.length);
+  };
 
-  const testimonials = [
-    {
-      name: 'คุณสมชาย ใจดี',
-      business: 'ร้านอาหารไทย',
-      text: 'ระบบจองใช้ง่ายมาก ไม่ต้องไปต่อแถวที่สำนักงาน ประหยัดเวลาได้เยอะ',
-      rating: 5,
-      color: 'from-blue-500 to-cyan-500'
-    },
-    {
-      name: 'คุณมาลี รักษ์ดี',
-      business: 'ร้านเสื้อผ้า',
-      text: 'สะดวกจริงๆ จองผ่านมือถือได้ ชำระเงินง่าย ได้ล็อคที่ต้องการอีก',
-      rating: 5,
-      color: 'from-purple-500 to-pink-500'
-    },
-    {
-      name: 'คุณประยุทธ นักขาย',
-      business: 'ร้านของที่ระลึก',
-      text: 'ประทับใจการบริการ ตอบคำถามรวดเร็ว ระบบทำงานได้ดี',
-      rating: 5,
-      color: 'from-orange-500 to-red-500'
-    }
-  ];
+  const prevImage = () => {
+    setCurrentImage((prev) => (prev - 1 + marketInfo.images.length) % marketInfo.images.length);
+  };
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'ArrowLeft') prevImage();
+      if (e.key === 'ArrowRight') nextImage();
+      if (e.key === 'Escape') setShowFullImage(false);
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   return (
-    <div className={styles.container}>
-      {/* Hero Section */}
-      <section className={styles.hero}>
+    <div className={styles.page}>
+      {/* Hero Header with Background Image */}
+      <div className={styles.hero}>
+        <div className={styles.heroOverlay}></div>
         <div className={styles.heroContent}>
-          <div className={styles.heroBadge}>
-            <Sparkles size={18} />
-            <span>เปิดให้จองแล้ว - จำนวนจำกัด</span>
-          </div>
-          <h1 className={styles.heroTitle}>ตลาดถนนคนเดินศรีสะเกษ</h1>
-          <p className={styles.heroSubtitle}>
-            ระบบจองล็อคพื้นที่สะดวก รวดเร็ว และน่าเชื่อถือ
-          </p>
-          <div className={styles.heroButtons}>
-            <Link href="/booking" className={styles.primaryBtn}>
-              <span>จองล็อคเลย</span>
-              <ArrowRight size={20} />
-            </Link>
-            <Link href="/terms" className={styles.secondaryBtn}>
-              <span>ดูข้อมูลเพิ่มเติม</span>
-            </Link>
-          </div>
+          <h1 className={styles.heroTitle}>{marketInfo.name}</h1>
+          <p className={styles.heroSubtitle}>{marketInfo.nameEn}</p>
         </div>
-      </section>
+      </div>
 
-      {/* Stats Section */}
-      {!loading && stats && (
-        <section className={styles.statsSection}>
-          <div className={styles.floatingBadge}>
-            <Sparkles size={16} />
-            <span>สถิติแบบเรียลไทม์</span>
-          </div>
-          <h2 className={styles.sectionTitle}>สถิติระบบจองล็อค</h2>
-          <Stats stats={stats} />
-        </section>
-      )}
+      {/* Main Content Container */}
+      <div className={styles.container}>
+        <div className={styles.mainContent}>
+          {/* Left Sidebar */}
+          <aside className={styles.sidebar}>
+            {/* Search Box */}
+            <div className={styles.searchBox}>
+              <input 
+                type="text" 
+                placeholder="ปิดอยู่ในขณะนี้"
+                className={styles.searchInput}
+                disabled
+              />
+            </div>
 
-      {/* Steps Section */}
-      <section className={styles.stepsSection}>
-        <div className={styles.stepsHeader}>
-          <div className={styles.floatingBadge}>
-            <Star size={16} />
-            <span>ง่ายแค่ 4 ขั้นตอน</span>
-          </div>
-          <h2 className={styles.sectionTitle}>วิธีการจอง</h2>
-          <p className={styles.sectionSubtitle}>เริ่มต้นได้ใน 4 ขั้นตอนง่ายๆ</p>
-        </div>
-
-        <div className={styles.stepsTimeline}>
-          <div className={styles.timelineLine}>
-            <div 
-              className={styles.timelineProgress}
-              style={{ width: `${(activeStep / 3) * 100}%` }}
-            />
-          </div>
-        </div>
-
-        <div className={styles.stepsContainer}>
-          {steps.map((step, index) => (
-            <div 
-              key={index}
-              className={`${styles.stepCard} ${activeStep === index ? styles.stepActive : ''} ${activeStep > index ? styles.stepCompleted : ''}`}
-              onMouseEnter={() => setActiveStep(index)}
-            >
-              {activeStep > index && (
-                <div className={styles.completedBadge}>
-                  <Check size={16} />
-                </div>
-              )}
-              
-              <div className={styles.stepNumber}>
-                {activeStep > index ? <Check size={24} /> : step.number}
-              </div>
-              
-              <div className={styles.stepIconWrapper}>
-                {step.icon}
-              </div>
-
-              <h3 className={styles.stepTitle}>{step.title}</h3>
-              <p className={styles.stepDescription}>{step.description}</p>
-
-              <div className={styles.stepDetails}>
-                {step.details.map((detail, idx) => (
-                  <div key={idx} className={styles.stepDetailItem}>
-                    <Check size={16} className={styles.checkIcon} />
-                    <span>{detail}</span>
+            {/* Opening Hours Card */}
+            <div className={styles.card}>
+              <h2 className={styles.cardTitle}>วันเวลาทำการ</h2>
+              <div className={styles.scheduleList}>
+                {marketInfo.openingHours.map((schedule, idx) => (
+                  <div 
+                    key={idx} 
+                    className={styles.scheduleItem}
+                    onMouseEnter={() => setActiveDay(schedule.day)}
+                    onMouseLeave={() => setActiveDay(null)}
+                    style={{
+                      background: activeDay === schedule.day ? '#f0f4ff' : 'transparent'
+                    }}
+                  >
+                    <span className={styles.scheduleDay}>{schedule.day}</span>
+                    <span className={styles.scheduleHours}>{schedule.hours}</span>
                   </div>
                 ))}
               </div>
-
-              {index < steps.length - 1 && (
-                <div className={styles.stepConnector}>
-                  <ArrowRight className={styles.connectorArrow} />
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
-
-        <div className={styles.stepProgress}>
-          {steps.map((_, index) => (
-            <div 
-              key={index}
-              className={`${styles.progressDot} ${activeStep === index ? styles.progressDotActive : ''}`}
-              onClick={() => setActiveStep(index)}
-            />
-          ))}
-        </div>
-      </section>
-
-      {/* Testimonials Section */}
-      <section className={styles.testimonialsSection}>
-        <div className={styles.floatingBadge}>
-          <Star size={16} />
-          <span>รีวิวจากลูกค้าจริง</span>
-        </div>
-        <h2 className={styles.sectionTitle}>ความคิดเห็นจากผู้ค้า</h2>
-        <div className={styles.testimonialsGrid}>
-          {testimonials.map((testimonial, index) => (
-            <div key={index} className={styles.testimonialCard}>
-              <div className={styles.quoteIcon}>"</div>
-              <div className={styles.testimonialRating}>
-                {[...Array(testimonial.rating)].map((_, i) => (
-                  <span key={i} className={styles.star}>★</span>
-                ))}
+              <div className={styles.scheduleNote}>
+                {marketInfo.note}
               </div>
-              <p className={styles.testimonialText}>"{testimonial.text}"</p>
-              <div className={styles.testimonialAuthor}>
-                <div className={`${styles.authorAvatar} bg-gradient-to-br ${testimonial.color}`}>
-                  {testimonial.name.charAt(2)}
+            </div>
+
+            {/* Back Button */}
+            <Link href="/contact" className={styles.backButton}>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                <path d="M19 12H5M12 19l-7-7 7-7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+              ติดต่อเรา
+            </Link>
+
+            {/* Verified Badge */}
+            <div className={styles.verifiedBadge}>
+              <div className={styles.checkIcon}>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="white">
+                  <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/>
+                </svg>
+              </div>
+              <span>ข้อมูลนี้เป็นหน่วยงานของรัฐ :</span>
+            </div>
+          </aside>
+
+          {/* Right Content Area */}
+          <div className={styles.contentArea}>
+            {/* Image Slider */}
+            <div className={styles.imageSlider}>
+              <div className={styles.imageWrapper}>
+                <div 
+                  className={styles.mainImage}
+                  style={{ backgroundImage: `url(${marketInfo.images[currentImage]})` }}
+                >
+                  <div className={styles.imageOverlay}>
+                    <div className={styles.overlayBadge}>
+                      พื้นที่เต็มเล่นและซื้อปิ่งหลายสเตล
+                    </div>
+                    <div className={styles.overlayContent}>
+                      <p className={styles.overlayText}>
+                        เปิดทั้งร้านค้าทั่วๆ 100 ล็อค<br/>
+                        เด็ดจนนานลากันไปบ่าง<br/>
+                        ผ่าวมเล้ยน<br/>
+                        ชุมเขอริบรสติด<br/>
+                        โซนสตาเลีย
+                      </p>
+                    </div>
+                  </div>
                 </div>
-                <div>
-                  <div className={styles.authorName}>{testimonial.name}</div>
-                  <div className={styles.authorBusiness}>{testimonial.business}</div>
+
+                {/* Navigation Buttons */}
+                <button 
+                  className={`${styles.navBtn} ${styles.navBtnLeft}`}
+                  onClick={prevImage}
+                  aria-label="Previous image"
+                >
+                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
+                    <path d="M15 18l-6-6 6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </button>
+
+                <button 
+                  className={`${styles.navBtn} ${styles.navBtnRight}`}
+                  onClick={nextImage}
+                  aria-label="Next image"
+                >
+                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
+                    <path d="M9 18l6-6-6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </button>
+
+                {/* Image Counter */}
+                <div className={styles.imageCounter}>
+                  {currentImage + 1} / {marketInfo.images.length}
+                </div>
+
+                {/* Fullscreen Button */}
+                <button 
+                  className={styles.fullscreenBtn}
+                  onClick={() => setShowFullImage(true)}
+                  aria-label="View fullscreen"
+                >
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                    <path d="M8 3H5a2 2 0 00-2 2v3m18 0V5a2 2 0 00-2-2h-3m0 18h3a2 2 0 002-2v-3M3 16v3a2 2 0 002 2h3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </button>
+
+                {/* Play Button Overlay */}
+                <button className={styles.playButton}>
+                  <svg width="48" height="48" viewBox="0 0 24 24" fill="white">
+                    <path d="M8 5v14l11-7z"/>
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            {/* Market Title & Location */}
+            <div className={styles.marketInfo}>
+              <h1 className={styles.marketTitle}>{marketInfo.name}</h1>
+              <div className={styles.location}>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 010-5 2.5 2.5 0 010 5z"/>
+                </svg>
+                <span>
+                  <strong>ตำบล:</strong> {marketInfo.address} <strong>อำเภอ:</strong> {marketInfo.district} <strong>จังหวัด:</strong> {marketInfo.province} {marketInfo.postalCode}
+                </span>
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className={styles.actionButtons}>
+              <button className={styles.actionBtn}>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"/>
+                </svg>
+                แชร์
+              </button>
+              <button className={styles.actionBtn}>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/>
+                </svg>
+                บันทึก
+              </button>
+              <button className={styles.actionBtn}>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                </svg>
+                ส่งอีเมล
+              </button>
+              <button className={styles.actionBtn}>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M17 3a2.83 2.83 0 114 4L7.5 20.5 2 22l1.5-5.5L17 3z"/>
+                </svg>
+                แจ้งปัญหา
+              </button>
+              <Link href="/booking" className={`${styles.actionBtn} ${styles.bookingBtn}`}>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M9 11l3 3L22 4M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/>
+                </svg>
+                จองล็อคเลย
+              </Link>
+            </div>
+
+            {/* Description */}
+            <div className={styles.descriptionCard}>
+              <p className={styles.description}>
+                {marketInfo.description}
+              </p>
+            </div>
+
+            {/* Contact Info */}
+            <div className={styles.contactCard}>
+              <h3 className={styles.contactTitle}>ข้อมูลติดต่อ</h3>
+              <div className={styles.contactGrid}>
+                <div className={styles.contactItem}>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M6.62 10.79a15.05 15.05 0 006.59 6.59l2.2-2.2a1 1 0 011.11-.27 11.36 11.36 0 003.48.56 1 1 0 011 1V20a1 1 0 01-1 1A17 17 0 013 4a1 1 0 011-1h3.5a1 1 0 011 1c0 1.25.2 2.45.57 3.57a1 1 0 01-.3 1.02l-2.15 2.2z"/>
+                  </svg>
+                  <div>
+                    <label>โทรศัพท์</label>
+                    <a href={`tel:${marketInfo.phone}`}>{marketInfo.phone}</a>
+                  </div>
+                </div>
+
+                <div className={styles.contactItem}>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
+                  </svg>
+                  <div>
+                    <label>อีเมล</label>
+                    <a href={`mailto:${marketInfo.email}`}>{marketInfo.email}</a>
+                  </div>
                 </div>
               </div>
-              <div className={styles.cardShine} />
             </div>
-          ))}
-        </div>
-      </section>
 
-      {/* Footer */}
-      <section className={styles.footer}>
-        <p>&copy; 2026 ตลาดถนนคนเดินศรีสะเกษ. สงวนลิขสิทธิ์ทั้งหมด</p>
-        <div className={styles.footerLinks}>
-          <Link href="/terms">เงื่อนไขการใช้บริการ</Link>
-          <Link href="/privacy">นโยบายความเป็นส่วนตัว</Link>
-          <Link href="/contact">ติดต่อเรา</Link>
+            {/* Map */}
+            <div className={styles.mapCard}>
+              <h3 className={styles.mapTitle}>แผนที่</h3>
+              <div className={styles.mapPlaceholder}>
+                <svg width="64" height="64" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 010-5 2.5 2.5 0 010 5z"/>
+                </svg>
+                <p>คลิกเพื่อดูแผนที่</p>
+                <button className={styles.mapBtn}>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                    <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                  นำทาง
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
-      </section>
+      </div>
+
+      {/* Fullscreen Image Modal */}
+      {showFullImage && (
+        <div className={styles.modal} onClick={() => setShowFullImage(false)}>
+          <button className={styles.closeModal} onClick={() => setShowFullImage(false)}>
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
+              <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </button>
+          <img 
+            src={marketInfo.images[currentImage]} 
+            alt={`${marketInfo.name} - Image ${currentImage + 1}`}
+            className={styles.modalImage}
+          />
+          <div className={styles.modalNav}>
+            <button onClick={(e) => { e.stopPropagation(); prevImage(); }}>
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
+                <path d="M15 18l-6-6 6-6" stroke="currentColor" strokeWidth="2"/>
+              </svg>
+            </button>
+            <span>{currentImage + 1} / {marketInfo.images.length}</span>
+            <button onClick={(e) => { e.stopPropagation(); nextImage(); }}>
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
+                <path d="M9 18l6-6-6-6" stroke="currentColor" strokeWidth="2"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
