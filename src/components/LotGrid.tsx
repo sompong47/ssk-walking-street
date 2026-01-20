@@ -1,5 +1,5 @@
 import { ILot } from '@/lib/models/Lot';
-import styles from './LotGrid.module.css';
+import styles from './lotGrid.module.css';
 import { useAuth } from '@/context/AuthContext'; // 👈 1. นำเข้า useAuth
 
 interface LotGridProps {
