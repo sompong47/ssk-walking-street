@@ -61,9 +61,15 @@ export default function MarketDetail() {
   };
 
   useEffect(() => {
+    const imagesLength = marketInfo.images.length;
+    
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'ArrowLeft') prevImage();
-      if (e.key === 'ArrowRight') nextImage();
+      if (e.key === 'ArrowLeft') {
+        setCurrentImage((prev) => (prev - 1 + imagesLength) % imagesLength);
+      }
+      if (e.key === 'ArrowRight') {
+        setCurrentImage((prev) => (prev + 1) % imagesLength);
+      }
       if (e.key === 'Escape') setShowFullImage(false);
     };
 
@@ -156,10 +162,9 @@ export default function MarketDetail() {
                     <div className={styles.overlayContent}>
                       <p className={styles.overlayText}>
                         เปิดทั้งร้านค้าทั่วๆ 100 ล็อค<br/>
-                        เด็ดจนนานลากันไปบ่าง<br/>
-                        ผ่าวมเล้ยน<br/>
-                        ชุมเขอริบรสติด<br/>
-                        โซนสตาเลีย
+                        <br/>
+                        <br/>
+                        <br/>
                       </p>
                     </div>
                   </div>
@@ -202,12 +207,6 @@ export default function MarketDetail() {
                   </svg>
                 </button>
 
-                {/* Play Button Overlay */}
-                <button className={styles.playButton}>
-                  <svg width="48" height="48" viewBox="0 0 24 24" fill="white">
-                    <path d="M8 5v14l11-7z"/>
-                  </svg>
-                </button>
               </div>
             </div>
 
@@ -299,12 +298,17 @@ export default function MarketDetail() {
                   <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 010-5 2.5 2.5 0 010 5z"/>
                 </svg>
                 <p>คลิกเพื่อดูแผนที่</p>
-                <button className={styles.mapBtn}>
+                <a 
+                  href="https://www.google.com/maps/place/%E0%B8%96%E0%B8%99%E0%B8%99%E0%B8%84%E0%B8%99%E0%B9%80%E0%B8%94%E0%B8%B4%E0%B8%99%E0%B8%A8%E0%B8%A3%E0%B8%B5%E0%B8%AA%E0%B8%B0%E0%B9%80%E0%B8%81%E0%B8%A8/@15.1056532,104.3169124,1141m/data=!3m1!1e3!4m6!3m5!1s0x3116e3ebe7b36de5:0xe8ed5406a96edfb8!8m2!3d15.1056075!4d104.3169022!16s%2Fg%2F11sb4zwz0r?entry=ttu&g_ep=EgoyMDI2MDExMy4wIKXMDSoASAFQAw%3D%3D"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={styles.mapBtn}
+                >
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
                     <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                   </svg>
                   นำทาง
-                </button>
+                </a>
               </div>
             </div>
           </div>
@@ -314,28 +318,47 @@ export default function MarketDetail() {
       {/* Fullscreen Image Modal */}
       {showFullImage && (
         <div className={styles.modal} onClick={() => setShowFullImage(false)}>
-          <button className={styles.closeModal} onClick={() => setShowFullImage(false)}>
-            <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
-              <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
+          <button
+            className={styles.closeBtn}
+            onClick={() => setShowFullImage(false)}
+            aria-label="Close"
+          >
+            ×
           </button>
-          <img 
-            src={marketInfo.images[currentImage]} 
-            alt={`${marketInfo.name} - Image ${currentImage + 1}`}
-            className={styles.modalImage}
-          />
-          <div className={styles.modalNav}>
-            <button onClick={(e) => { e.stopPropagation(); prevImage(); }}>
-              <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
-                <path d="M15 18l-6-6 6-6" stroke="currentColor" strokeWidth="2"/>
-              </svg>
-            </button>
-            <span>{currentImage + 1} / {marketInfo.images.length}</span>
-            <button onClick={(e) => { e.stopPropagation(); nextImage(); }}>
-              <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
-                <path d="M9 18l6-6-6-6" stroke="currentColor" strokeWidth="2"/>
-              </svg>
-            </button>
+
+          <div className={styles.modalContent}>
+            <img 
+              src={marketInfo.images[currentImage]} 
+              alt={`${marketInfo.name} - Image ${currentImage + 1}`}
+              className={styles.modalImage}
+            />
+
+            {/* Bottom Navigation */}
+            <div className={styles.bottomNav}>
+              <button 
+                className={`${styles.navBtn} ${styles.modalNavBtn}`}
+                onClick={(e) => { e.stopPropagation(); prevImage(); }}
+                aria-label="Previous image"
+              >
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
+                  <path d="M15 18l-6-6 6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </button>
+
+              <span className={styles.imageCounter}>
+                {currentImage + 1} / {marketInfo.images.length}
+              </span>
+
+              <button 
+                className={`${styles.navBtn} ${styles.modalNavBtn}`}
+                onClick={(e) => { e.stopPropagation(); nextImage(); }}
+                aria-label="Next image"
+              >
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
+                  <path d="M9 18l6-6-6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </button>
+            </div>
           </div>
         </div>
       )}
