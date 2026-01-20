@@ -1,25 +1,16 @@
 'use client';
 
-import React, { useState } from 'react';
+import { useState, useEffect } from 'react';
 import type { ILot } from '@/lib/models/Lot';
-
-const colors = {
-  primary: '#2c3e50',
-  secondary: '#3498db',
-  success: '#27ae60',
-  warning: '#f39c12',
-  danger: '#e74c3c',
-  light: '#ecf0f1',
-  dark: '#2c3e50',
-};
+import styles from './BookingForm.module.css';
 
 interface BookingFormProps {
   selectedLot: ILot | null;
-  onSubmit: (data: any) => void;
-  isLoading: boolean;
+  // ลบ onSubmit ออก เพราะเราจะจัดการเองในนี้
+  onCancel?: () => void; 
 }
 
-export function BookingForm({ selectedLot, onSubmit, isLoading }: BookingFormProps) {
+export function BookingForm({ selectedLot }: BookingFormProps) {
   const [formData, setFormData] = useState({
     vendorName: '',
     vendorPhone: '',
@@ -30,172 +21,138 @@ export function BookingForm({ selectedLot, onSubmit, isLoading }: BookingFormPro
     endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
   });
 
-  const [errors, setErrors] = useState<any>({});
+  const [isLoading, setIsLoading] = useState(false);
+  const [totalPrice, setTotalPrice] = useState(0);
+
+  // คำนวณราคา
+  useEffect(() => {
+    if (selectedLot && formData.startDate && formData.endDate) {
+      const start = new Date(formData.startDate);
+      const end = new Date(formData.endDate);
+      const diffTime = Math.abs(end.getTime() - start.getTime());
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) || 1; 
+      setTotalPrice(selectedLot.price * diffDays);
+    }
+  }, [selectedLot, formData.startDate, formData.endDate]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
-    if (errors[name]) {
-      setErrors((prev: any) => ({ ...prev, [name]: '' }));
+  };
+
+  // 🔥 ฟังก์ชันยิง API และเปลี่ยนหน้า (ย้ายมาไว้ในนี้เลย)
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault(); // ห้ามรีเฟรชหน้าเด็ดขาด
+
+    if (!selectedLot) return alert('กรุณาเลือกล็อคก่อน');
+    if (!formData.vendorName || !formData.vendorPhone) return alert('กรุณากรอกชื่อและเบอร์โทร');
+
+    setIsLoading(true);
+
+    try {
+      console.log('🚀 กำลังจองล็อต:', selectedLot.lotNumber);
+
+      // 1. ยิง API
+      const res = await fetch('/api/bookings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          lotId: selectedLot._id, // ใช้ ID จาก Props
+          ...formData,
+          totalPrice
+        })
+      });
+
+      const data = await res.json();
+      console.log('📡 Server ตอบกลับ:', data);
+
+      if (data.success && data.data?._id) {
+        // ✅ 2. ถ้าสำเร็จ บังคับเปลี่ยนหน้าทันที!
+        window.location.href = `/payment/${data.data._id}`;
+      } else {
+        // ถ้าไม่สำเร็จ (เช่น ล็อคไม่ว่าง)
+        alert(`❌ จองไม่สำเร็จ: ${data.message || 'ล็อตนี้อาจถูกจองไปแล้ว'}`);
+        setIsLoading(false);
+      }
+
+    } catch (error) {
+      console.error(error);
+      alert('เกิดข้อผิดพลาดในการเชื่อมต่อ');
+      setIsLoading(false);
     }
   };
 
-  const validate = () => {
-    const newErrors: any = {};
-    
-    if (!formData.vendorName.trim()) newErrors.vendorName = 'ต้องระบุชื่อผู้ค้า';
-    if (!formData.vendorPhone.trim()) newErrors.vendorPhone = 'ต้องระบุเบอร์โทร';
-    if (!/^\d{10}$/.test(formData.vendorPhone.replace(/[^\d]/g, ''))) {
-      newErrors.vendorPhone = 'เบอร์โทรไม่ถูกต้อง';
-    }
-    if (!formData.vendorEmail.trim()) newErrors.vendorEmail = 'ต้องระบุอีเมล';
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.vendorEmail)) {
-      newErrors.vendorEmail = 'อีเมลไม่ถูกต้อง';
-    }
-    if (!formData.businessType.trim()) newErrors.businessType = 'ต้องระบุประเภทสินค้า';
-    if (new Date(formData.startDate) >= new Date(formData.endDate)) {
-      newErrors.endDate = 'วันสิ้นสุดต้องหลังจากวันเริ่มต้น';
-    }
-    
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleSubmit = () => {
-    if (!selectedLot) {
-      alert('กรุณาเลือกล็อค');
-      return;
-    }
-    
-    if (!validate()) {
-      return;
-    }
-    
-    onSubmit(formData);
-  };
+  if (!selectedLot) {
+    return (
+        <div className={`${styles.card} ${styles.emptyState}`}>
+            <div className={styles.emptyIcon}>👈</div>
+            <h3>กรุณาเลือกล็อคจากรายการ</h3>
+        </div>
+    );
+  }
 
   return (
-    <div style={{
-      backgroundColor: '#fff',
-      border: `2px solid ${colors.secondary}`,
-      borderRadius: '8px',
-      padding: '20px',
-      boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-    }}>
-      <h3 style={{ marginTop: 0, color: colors.primary, marginBottom: '15px' }}>
-        {selectedLot ? `จองล็อค #${selectedLot.lotNumber}` : 'เลือกล็อคก่อน'}
-      </h3>
-
-      {selectedLot && (
-        <div style={{
-          backgroundColor: colors.light,
-          padding: '12px',
-          borderRadius: '6px',
-          marginBottom: '15px',
-          fontSize: '13px',
-          borderLeft: `4px solid ${colors.secondary}`,
-        }}>
-          <div><strong>ล็อค #{selectedLot.lotNumber}</strong></div>
-          <div>ขนาด: {selectedLot.size}m²</div>
-          <div>ราคา: {selectedLot.price} บาท/เดือน</div>
-        </div>
-      )}
-
-      {['vendorName', 'vendorPhone', 'vendorEmail', 'businessType', 'businessDescription'].map((field) => (
-        <div key={field} style={{ marginBottom: '12px' }}>
-          <label style={{
-            display: 'block',
-            marginBottom: '4px',
-            color: colors.primary,
-            fontWeight: 'bold',
-            fontSize: '13px',
-          }}>
-            {field === 'vendorName' && 'ชื่อผู้ค้า'}
-            {field === 'vendorPhone' && 'เบอร์โทร'}
-            {field === 'vendorEmail' && 'อีเมล'}
-            {field === 'businessType' && 'ประเภทสินค้า'}
-            {field === 'businessDescription' && 'คำอธิบายธุรกิจ'}
-          </label>
-          <input
-            type={field === 'vendorEmail' ? 'email' : 'text'}
-            name={field}
-            value={(formData as any)[field]}
-            onChange={handleChange}
-            placeholder={field === 'businessType' ? 'เช่น เสื้อผ้า, อาหาร, ของใช้' : ''}
-            style={{
-              width: '100%',
-              padding: '10px',
-              border: `1px solid ${errors[field] ? colors.danger : colors.light}`,
-              borderRadius: '4px',
-              fontSize: '13px',
-              boxSizing: 'border-box',
-              fontFamily: 'inherit',
-              backgroundColor: errors[field] ? 'rgba(231, 76, 60, 0.05)' : '#fff',
-            }}
-          />
-          {errors[field] && (
-            <div style={{ color: colors.danger, fontSize: '12px', marginTop: '4px' }}>
-              {errors[field]}
-            </div>
-          )}
-        </div>
-      ))}
-
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '15px' }}>
-        {['startDate', 'endDate'].map((field) => (
-          <div key={field}>
-            <label style={{
-              display: 'block',
-              marginBottom: '4px',
-              color: colors.primary,
-              fontWeight: 'bold',
-              fontSize: '13px',
-            }}>
-              {field === 'startDate' ? 'วันเริ่มจอง' : 'วันสิ้นสุด'}
-            </label>
-            <input
-              type="date"
-              name={field}
-              value={(formData as any)[field]}
-              onChange={handleChange}
-              style={{
-                width: '100%',
-                padding: '10px',
-                border: `1px solid ${errors[field] ? colors.danger : colors.light}`,
-                borderRadius: '4px',
-                fontSize: '13px',
-                boxSizing: 'border-box',
-                fontFamily: 'inherit',
-              }}
-            />
-            {errors[field] && (
-              <div style={{ color: colors.danger, fontSize: '12px', marginTop: '4px' }}>
-                {errors[field]}
-              </div>
-            )}
-          </div>
-        ))}
+    <div className={styles.card}>
+      <div className={styles.header}>
+         <h3>🛒 จองล็อค: <span className={styles.lotNumber}>#{selectedLot.lotNumber}</span></h3>
+         <span className={styles.badge}>{selectedLot.section}</span>
       </div>
 
-      <button
-        onClick={handleSubmit}
-        disabled={!selectedLot || isLoading}
-        style={{
-          width: '100%',
-          padding: '12px',
-          backgroundColor: selectedLot ? colors.secondary : colors.light,
-          color: selectedLot ? '#fff' : colors.dark,
-          border: 'none',
-          borderRadius: '4px',
-          fontSize: '15px',
-          fontWeight: 'bold',
-          cursor: selectedLot && !isLoading ? 'pointer' : 'not-allowed',
-          opacity: selectedLot && !isLoading ? 1 : 0.6,
-          transition: 'all 0.3s ease',
-        }}
-      >
-        {isLoading ? 'กำลังประมวลผล...' : 'จองล็อค'}
-      </button>
+      <div className={styles.summaryBox}>
+        <div className={styles.summaryItem}>
+             <label>ราคา/วัน</label>
+             <span className={styles.price}>{selectedLot.price.toLocaleString()} ฿</span>
+        </div>
+        <div className={`${styles.summaryItem} ${styles.totalHighlight}`}>
+             <label>ราคารวม</label>
+             <span>{totalPrice.toLocaleString()} ฿</span>
+        </div>
+      </div>
+
+      {/* ใช้ onSubmit ที่เราเขียนเองด้านบน */}
+      <form onSubmit={handleSubmit} className={styles.formContainer}>
+        
+        <div className={styles.formGroup}>
+            <label>ชื่อ-นามสกุล / ชื่อร้าน <span className={styles.req}>*</span></label>
+            <input name="vendorName" value={formData.vendorName} onChange={handleChange} placeholder="ระบุชื่อร้าน" className={styles.input} />
+        </div>
+
+        <div className={styles.row}>
+            <div className={styles.formGroup}>
+                <label>เบอร์โทรศัพท์ <span className={styles.req}>*</span></label>
+                <input name="vendorPhone" value={formData.vendorPhone} onChange={handleChange} placeholder="08xxxxxxxx" maxLength={10} className={styles.input} />
+            </div>
+            <div className={styles.formGroup}>
+                <label>อีเมล</label>
+                <input name="vendorEmail" value={formData.vendorEmail} onChange={handleChange} placeholder="ถ้ามี" className={styles.input} />
+            </div>
+        </div>
+
+        <div className={styles.formGroup}>
+            <label>ประเภทสินค้า <span className={styles.req}>*</span></label>
+            <input name="businessType" value={formData.businessType} onChange={handleChange} placeholder="เช่น อาหาร, เสื้อผ้า" className={styles.input} />
+        </div>
+
+        <div className={styles.formGroup}>
+            <label>รายละเอียดเพิ่มเติม</label>
+            <textarea name="businessDescription" value={formData.businessDescription} onChange={handleChange} rows={2} className={styles.input} />
+        </div>
+
+        <div className={styles.row}>
+            <div className={styles.formGroup}>
+                <label>วันเริ่มขาย</label>
+                <input type="date" name="startDate" value={formData.startDate} onChange={handleChange} className={styles.input} />
+            </div>
+            <div className={styles.formGroup}>
+                <label>ถึงวันที่</label>
+                <input type="date" name="endDate" value={formData.endDate} onChange={handleChange} className={styles.input} />
+            </div>
+        </div>
+
+        <button type="submit" className={styles.submitBtn} disabled={isLoading}>
+            {isLoading ? '⏳ กำลังบันทึกและเปลี่ยนหน้า...' : `ยืนยันการจอง (${totalPrice.toLocaleString()} บ.)`}
+        </button>
+      </form>
     </div>
   );
 }

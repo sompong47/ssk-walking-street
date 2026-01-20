@@ -1,80 +1,81 @@
 import { connectDB } from '@/lib/mongodb';
 import { Booking } from '@/lib/models/Booking';
 import { Lot } from '@/lib/models/Lot';
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 
-export async function GET(request: NextRequest) {
+// 1. GET: ดึงรายการจอง (รองรับ status และ phone)
+export async function GET(request: Request) {
   try {
     await connectDB();
     
-    const searchParams = request.nextUrl.searchParams;
-    const paymentStatus = searchParams.get('paymentStatus');
-    const page = parseInt(searchParams.get('page') || '1');
-    const limit = parseInt(searchParams.get('limit') || '20');
+    const { searchParams } = new URL(request.url);
+    const status = searchParams.get('status');
+    const phone = searchParams.get('phone'); // ✅ รับค่าเบอร์โทร
     
-    let query: any = {};
-    if (paymentStatus) {
-      query.paymentStatus = paymentStatus;
+    const filter: any = {};
+
+    // ถ้ามีส่ง status มาให้กรองตาม status
+    if (status && status !== 'all') {
+      filter.status = status;
     }
-    
-    const skip = (page - 1) * limit;
-    const bookings = await Booking.find(query)
+
+    // ✅ ถ้ามีส่ง phone มา ให้ค้นหาแบบ "มีส่วนประกอบ" (Regex)
+    if (phone) {
+        filter.vendorPhone = { $regex: phone, $options: 'i' };
+    }
+
+    const bookings = await Booking.find(filter)
       .populate('lotId')
-      .skip(skip)
-      .limit(limit)
       .sort({ createdAt: -1 });
-    
-    const total = await Booking.countDocuments(query);
-    
-    return NextResponse.json({
-      success: true,
-      data: {
-        bookings,
-        pagination: {
-          total,
-          page,
-          limit,
-          pages: Math.ceil(total / limit),
-        },
-      },
-    });
-  } catch (error: any) {
-    return NextResponse.json(
-      { success: false, error: error.message },
-      { status: 500 }
-    );
+
+    return NextResponse.json({ success: true, data: bookings });
+  } catch (error) {
+    return NextResponse.json({ success: false, message: 'ดึงข้อมูลล้มเหลว' }, { status: 500 });
   }
 }
 
-export async function POST(request: NextRequest) {
+// 2. POST: (ส่วนนี้เหมือนเดิม ไม่ต้องแก้ แต่ก๊อปไปวางทับให้ครบได้ครับ)
+export async function POST(request: Request) {
   try {
     await connectDB();
-    const data = await request.json();
-    
-    const lot = await Lot.findById(data.lotId);
-    if (!lot || lot.status !== 'available') {
-      return NextResponse.json(
-        { success: false, error: 'Lot is not available' },
-        { status: 400 }
-      );
+    const body = await request.json();
+    const { 
+      lotId, vendorName, vendorPhone, vendorEmail, 
+      businessType, businessDescription, startDate, endDate, totalPrice 
+    } = body;
+
+    if (!lotId || !vendorName || !vendorPhone || !startDate) {
+        return NextResponse.json({ success: false, message: 'ข้อมูลไม่ครบ' }, { status: 400 });
     }
-    
-    const booking = new Booking({
-      ...data,
-      paymentStatus: 'pending',
+
+    const lot = await Lot.findById(lotId);
+    if (!lot || lot.status !== 'available') {
+      return NextResponse.json({ success: false, message: 'ล็อคไม่ว่าง' }, { status: 400 });
+    }
+
+    // คำนวณราคา (Backup เผื่อ frontend ไม่ส่งมา)
+    const amount = totalPrice || lot.price; 
+
+    const newBooking = await Booking.create({
+      lotId,
+      vendorName,
+      vendorPhone,
+      vendorEmail,
+      businessType,
+      businessDescription,
+      startDate: new Date(startDate),
+      endDate: new Date(endDate),
+      totalAmount: amount,
+      status: 'pending',
+      paymentStatus: 'pending'
     });
-    
-    await booking.save();
-    await Lot.findByIdAndUpdate(data.lotId, { status: 'reserved' });
-    
-    return NextResponse.json(
-      { success: true, data: booking },
-      { status: 201 }
-    );
+
+    await Lot.findByIdAndUpdate(lotId, { status: 'booked' });
+
+    return NextResponse.json({ success: true, data: newBooking });
+
   } catch (error: any) {
-    return NextResponse.json(
-      { success: false, error: error.message },
-      { status: 500 }
-    );
+    console.error('Create Booking Error:', error);
+    return NextResponse.json({ success: false, message: error.message }, { status: 500 });
   }
 }

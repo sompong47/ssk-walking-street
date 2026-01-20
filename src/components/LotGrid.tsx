@@ -1,82 +1,119 @@
-'use client';
-
-import React from 'react';
-import styles from './lotGrid.module.css';
-
-// Interface นี้ต้องตรงกับ Model ของคุณ
-interface ILot {
-  _id: string;
-  lotNumber: string;
-  status: 'available' | 'reserved' | 'booked';
-  price: number;
-  section?: string; 
-}
+import { ILot } from '@/lib/models/Lot';
+import styles from './LotGrid.module.css';
+import { useAuth } from '@/context/AuthContext'; // 👈 1. นำเข้า useAuth
 
 interface LotGridProps {
   lots: ILot[];
   selectedLot: ILot | null;
   onSelectLot: (lot: ILot) => void;
-  isSystemOpen: boolean; // รับค่าว่าอยู่ในเวลาจองหรือไม่
+  isSystemOpen: boolean;
+  selectedDay: 'saturday' | 'sunday';
 }
 
-export const LotGrid = ({ lots, selectedLot, onSelectLot, isSystemOpen }: LotGridProps) => {
+export const LotGrid = ({ lots, selectedLot, onSelectLot, isSystemOpen, selectedDay }: LotGridProps) => {
   
-  // แบ่งข้อมูลเป็น 2 ฝั่ง (สมมติ: ครึ่งแรก = ฝั่งซ้าย, ครึ่งหลัง = ฝั่งขวา)
-  const halfIndex = Math.ceil(lots.length / 2);
-  const leftLaneLots = lots.slice(0, halfIndex);
-  const rightLaneLots = lots.slice(halfIndex);
+  // 👈 2. ดึงค่า isLoggedIn และฟังก์ชันเปิด Modal มาใช้
+  const { isLoggedIn, setShowLoginModal } = useAuth();
 
-  // ฟังก์ชันเรนเดอร์แต่ละกล่อง
-  const renderLotBtn = (lot: ILot) => {
-    const isSelected = selectedLot?._id === lot._id;
-    const isAvailable = lot.status === 'available';
+  const filteredLots = lots.filter(lot => {
+    if (selectedDay === 'saturday') return lot.zoneType === 'standard';
+    return true;
+  });
+
+  // แยกข้อมูล 4 แถว
+  const rowALots = filteredLots.filter(l => l.section === 'rowA');
+  const rowBLots = filteredLots.filter(l => l.section === 'rowB');
+  const rowCLots = filteredLots.filter(l => l.section === 'rowC');
+  const rowDLots = filteredLots.filter(l => l.section === 'rowD');
+
+  const renderLotBox = (lot: ILot) => {
+    // เช็คสถานะให้ครอบคลุม
+    const isUnavailable = lot.status !== 'available'; 
     
-    // เงื่อนไขการกด: ต้องว่าง + ระบบเปิดอยู่
-    const canClick = isAvailable && isSystemOpen;
+    const isSelected = selectedLot?._id === lot._id;
+    
+    // กำหนด Class ตามสถานะ
+    let statusClass = styles.available; 
+    if (isUnavailable) statusClass = styles.reserved;
+    if (isSelected) statusClass = styles.selected;
+
+    // แสดงข้อความตามสถานะจริง
+    const getStatusLabel = () => {
+        if (lot.status === 'reserved') return 'จองแล้ว';
+        if (lot.status === 'maintenance') return 'ปิด';
+        return '';
+    };
 
     return (
-      <button
-        key={lot._id}
-        type="button"
-        onClick={() => canClick && onSelectLot(lot)}
-        disabled={!canClick}
-        className={`
-          ${styles.lotButton}
-          ${styles[lot.status]} 
-          ${isSelected ? styles.selected : ''}
-        `}
-        title={`ล็อค ${lot.lotNumber} : ${lot.price} บาท`}
+      <div 
+        key={lot._id.toString()}
+        className={`${styles.lotBox} ${statusClass}`}
+        // 👈 3. แก้ไข onClick: เช็ค Login ก่อนจอง
+        onClick={() => {
+            // ต้องว่าง และ ระบบเปิดอยู่ ถึงจะกดได้
+            if (!isUnavailable && isSystemOpen) {
+                if (!isLoggedIn) {
+                    // ถ้ายังไม่ล็อกอิน -> เปิด Popup
+                    setShowLoginModal(true);
+                } else {
+                    // ถ้าล็อกอินแล้ว -> เลือกจองได้ตามปกติ
+                    onSelectLot(lot);
+                }
+            }
+        }}
       >
         <span className={styles.lotNumber}>{lot.lotNumber}</span>
-        <span className={styles.lotPrice}>{lot.price}฿</span>
-      </button>
+        
+        {/* ถ้าว่าง: แสดงราคา */}
+        {!isUnavailable && <span className={styles.lotPrice}>{lot.price}฿</span>}
+        
+        {/* ถ้าไม่ว่าง: แสดงสถานะ */}
+        {isUnavailable && (
+            <span className={styles.lotStatus} style={{fontSize: '10px'}}>
+                {getStatusLabel()}
+            </span>
+        )}
+      </div>
     );
   };
 
+  const Walkway = () => (
+    <div className={styles.walkway}>
+      <div className={styles.roadLine}></div>
+    </div>
+  );
+
   return (
-    <div className={styles.container}>
-      {/* ส่วนหัวถนน */}
-      <div style={{ textAlign: 'center', marginBottom: '10px', color: '#888' }}>
-        ⬇ ทางเข้าตลาด (จุดเริ่มต้น) ⬇
+    <div className={styles.mapWrapper}>
+      <div className={styles.headerLabel}>⬇️ ทางเข้าตลาด (จุดเริ่มต้น) ⬇️</div>
+
+      <div className={styles.mainGridContainer}>
+        {/* 1. ร้าน A */}
+        <div className={styles.stallColumn}>
+            {rowALots.length > 0 ? rowALots.map(renderLotBox) : <div className={styles.empty}>ว่าง</div>}
+        </div>
+        
+        {/* 2. ถนนซ้าย */}
+        <Walkway />
+        
+        {/* 3. ร้าน B */}
+        <div className={styles.stallColumn}>{rowBLots.map(renderLotBox)}</div>
+        
+        {/* 4. ช่องว่างกลาง */}
+        <div className={styles.centerGap}></div>
+        
+        {/* 5. ร้าน C */}
+        <div className={styles.stallColumn}>{rowCLots.map(renderLotBox)}</div>
+        
+        {/* 6. ถนนขวา */}
+        <Walkway />
+        
+        {/* 7. ร้าน D */}
+        <div className={styles.stallColumn}>{rowDLots.map(renderLotBox)}</div>
       </div>
 
-      <div className={styles.roadContainer}>
-        {/* เลนซ้าย */}
-        <div className={styles.lane}>
-          <div className={styles.laneHeader}>ฝั่งซ้าย</div>
-          {leftLaneLots.map(renderLotBtn)}
-        </div>
-
-        {/* เลนขวา */}
-        <div className={styles.lane}>
-          <div className={styles.laneHeader}>ฝั่งขวา</div>
-          {rightLaneLots.map(renderLotBtn)}
-        </div>
-      </div>
-      
-       {/* ส่วนท้ายถนน */}
-       <div style={{ textAlign: 'center', marginTop: '10px', color: '#888' }}>
-        ⬆ สุดระยะถนนคนเดิน (~450m) ⬆
+      <div className={styles.footerLabel}>
+        {selectedDay === 'saturday' ? '⛔ สุดระยะวันเสาร์' : '🏁 สุดระยะวันอาทิตย์'}
       </div>
     </div>
   );

@@ -1,0 +1,152 @@
+.container {
+  padding: 20px;
+  background-color: #f8fafc;
+  min-height: 100vh;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  background: white;
+  padding: 15px 20px;
+  border-radius: 12px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.legend {
+  display: flex;
+  gap: 15px;
+  font-size: 14px;
+  align-items: center;
+}
+
+.dotGreen, .dotRed, .dotGray {
+  width: 12px; height: 12px; border-radius: 50%; display: inline-block;
+}
+.dotGreen { background: #22c55e; }
+.dotRed { background: #ef4444; }
+.dotGray { background: #94a3b8; }
+
+/* --- Map Layout --- */
+.mapWrapper {
+  background: white;
+  padding: 30px;
+  border-radius: 16px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow-x: auto;
+}
+
+.roadLabel {
+  background: #f1f5f9;
+  padding: 5px 20px;
+  border-radius: 20px;
+  margin-bottom: 20px;
+  font-weight: bold;
+  color: #64748b;
+}
+
+.gridMap {
+  display: grid;
+  /* ร้าน | ถนน | ร้าน | ช่องว่าง | ร้าน | ถนน | ร้าน */
+  grid-template-columns: 1fr 20px 1fr 10px 1fr 20px 1fr;
+  gap: 10px;
+  min-width: 600px;
+}
+
+.column {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.road {
+  background: #e2e8f0;
+  border-radius: 4px;
+}
+
+/* --- Lot Box Design --- */
+.lotBox {
+  height: 50px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.1s;
+  background: white;
+}
+
+.lotBox:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  z-index: 2;
+}
+
+.lotNum { font-weight: bold; font-size: 14px; color: #334155; }
+.lotPrice { font-size: 10px; color: #64748b; }
+
+/* Status Colors */
+.lotBox.available { border-left: 4px solid #22c55e; }
+.lotBox.maintenance { background: #f1f5f9; border-left: 4px solid #94a3b8; color: #94a3b8; }
+.lotBox.reserved { background: #fef2f2; border-left: 4px solid #ef4444; opacity: 0.9; }
+
+/* --- Modal --- */
+.modalOverlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+
+.modal {
+  background: white;
+  padding: 25px;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 400px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+}
+
+.formGroup { margin: 15px 0; }
+.formGroup label { display: block; margin-bottom: 8px; font-weight: bold; color: #334155; }
+.input { width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; }
+
+.statusOptions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.statusBtn {
+  padding: 10px;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  background: white;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.2s;
+}
+
+.statusBtn:hover { background: #f8fafc; }
+.activeGreen { background: #dcfce7; border-color: #22c55e; color: #166534; font-weight: bold; }
+.activeGray { background: #f1f5f9; border-color: #94a3b8; color: #475569; font-weight: bold; }
+.activeRed { background: #fee2e2; border-color: #ef4444; color: #991b1b; font-weight: bold; }
+
+.modalActions {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.saveBtn { flex: 2; padding: 10px; background: #3b82f6; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; }
+.cancelBtn { flex: 1; padding: 10px; background: #e2e8f0; color: #475569; border: none; border-radius: 6px; cursor: pointer; }

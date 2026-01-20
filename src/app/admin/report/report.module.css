@@ -1,0 +1,104 @@
+/* src/app/admin/report/report.module.css */
+
+.container {
+  background: white;
+  padding: 40px;
+  min-height: 100vh;
+  font-family: 'Sarabun', sans-serif;
+  color: #000;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  border-bottom: 2px solid #333;
+  padding-bottom: 20px;
+}
+
+.title h1 {
+  font-size: 24px;
+  margin: 0;
+  color: #000;
+}
+
+.title p {
+  font-size: 16px;
+  color: #666;
+  margin: 5px 0 0 0;
+}
+
+.printBtn {
+  background: #2563eb;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.printBtn:hover {
+  background: #1d4ed8;
+}
+
+.stats {
+  margin-bottom: 15px;
+  font-size: 14px;
+  color: #333;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12pt;
+}
+
+.table th, .table td {
+  border: 1px solid #333;
+  padding: 8px;
+  text-align: left;
+  color: #000;
+}
+
+.table th {
+  background-color: #f3f4f6;
+  font-weight: bold;
+  text-align: center;
+}
+
+.lotCell {
+  font-weight: bold;
+  text-align: center;
+  font-size: 14pt;
+}
+
+.checkCell {
+  height: 30px;
+}
+
+.footer {
+  margin-top: 50px;
+  display: flex;
+  justify-content: space-between;
+  padding-top: 20px;
+  color: #000;
+}
+
+/* @media print ในไฟล์ module ให้เหลือแค่จัดการ class ภายในนี้พอ */
+@media print {
+  .printBtn {
+    display: none !important;
+  }
+
+  .container {
+    padding: 0;
+    margin: 0;
+    box-shadow: none;
+    width: 100%;
+  }
+}
