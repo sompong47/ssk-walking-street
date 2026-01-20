@@ -61,21 +61,30 @@
   .row { grid-template-columns: 1fr; }
 }
 
-label {
+/* ✅ แก้ไขจุดที่ 1: ใส่ .formGroup นำหน้า label */
+.formGroup label {
   font-weight: bold;
   font-size: 0.9rem;
   color: #334155;
 }
 
-input, select, textarea {
+/* ✅ แก้ไขจุดที่ 2: ใส่ .formGroup นำหน้า input, select, textarea */
+.formGroup input, 
+.formGroup select, 
+.formGroup textarea {
   padding: 12px;
   border: 1px solid #e2e8f0;
   border-radius: 8px;
   font-size: 1rem;
   transition: border-color 0.2s;
+  width: 100%; /* แนะนำให้ใส่ เพื่อให้เต็มกล่อง */
+  box-sizing: border-box; /* สำคัญ: ไม่ให้ padding ดันจนล้น */
 }
 
-input:focus, select:focus, textarea:focus {
+/* ✅ แก้ไขจุดที่ 3: ใส่ .formGroup นำหน้าตอน focus */
+.formGroup input:focus, 
+.formGroup select:focus, 
+.formGroup textarea:focus {
   outline: none;
   border-color: #3b82f6;
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
