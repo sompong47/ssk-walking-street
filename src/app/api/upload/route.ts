@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { writeFile } from 'fs/promises';
+import { writeFile, mkdir } from 'fs/promises';
 import path from 'path';
 
 export async function POST(request: Request) {
@@ -11,27 +11,29 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: false, message: 'ไม่พบไฟล์' }, { status: 400 });
     }
 
-    // แปลงไฟล์เป็น Buffer
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
-    // ตั้งชื่อไฟล์ใหม่ (กันชื่อซ้ำ) เช่น slip-123456789.jpg
+    // ตั้งชื่อไฟล์ใหม่ด้วยเวลาปัจจุบัน (กันชื่อซ้ำ)
     const filename = `slip-${Date.now()}${path.extname(file.name)}`;
     
-    // ระบุปลายทางที่จะบันทึก (ไปที่ public/uploads)
+    // กำหนด Path ไปที่ public/uploads
     const uploadDir = path.join(process.cwd(), 'public/uploads');
-    const filePath = path.join(uploadDir, filename);
+    
+    // สร้างโฟลเดอร์ uploads ถ้ายังไม่มี
+    try {
+      await mkdir(uploadDir, { recursive: true });
+    } catch (e) {
+      // โฟลเดอร์มีอยู่แล้ว ไม่ต้องทำอะไร
+    }
 
-    // บันทึกไฟล์
+    const filePath = path.join(uploadDir, filename);
     await writeFile(filePath, buffer);
 
-    // ส่ง URL กลับไปให้หน้าเว็บ
-    const fileUrl = `/uploads/${filename}`;
-    
-    return NextResponse.json({ success: true, url: fileUrl });
+    return NextResponse.json({ success: true, url: `/uploads/${filename}` });
 
   } catch (error) {
-    console.error(error);
+    console.error('Upload Error:', error);
     return NextResponse.json({ success: false, message: 'อัปโหลดล้มเหลว' }, { status: 500 });
   }
 }

@@ -1,9 +1,10 @@
 import type { Metadata, Viewport } from 'next';
 import { ReactNode } from 'react';
-import Link from 'next/link';
-import ThemeToggle from './ThemeToggle';
 import Script from 'next/script';
 import './globals.css';
+import { AuthProvider } from '@/context/AuthContext'; // 👈 นำเข้า Context
+import LoginModal from '@/components/LoginModal';     // 👈 นำเข้า Popup Login
+import SiteHeader from '@/components/SiteHeader';     // 👈 นำเข้า Header ที่เพิ่งสร้าง
 
 export const metadata: Metadata = {
   title: 'ระบบจองล็อคตลาดถนนเดินศรีสะเกษ',
@@ -44,22 +45,21 @@ export default function RootLayout({
         />
       </head>
       <body>
-        <header className="site-header">
-          <div className="nav-inner">
-            <Link href="/" className="logo">ตลาดถนนคนเดินศรีสะเกษ</Link>
-            <nav className="nav">
-              <Link href="/">หน้าหลัก</Link>
-              <Link href="/booking">จองล็อค</Link>
-              <Link href="/my-bookings">การจองของฉัน</Link>
-              <Link href="/payment">ประวัติการชำระ</Link>
-              <Link href="/contact">ติดต่อเรา</Link>
-              <ThemeToggle />
-            </nav>
-          </div>
-        </header>
-        <main>
-          {children}
-        </main>
+        {/* ครอบ AuthProvider เพื่อให้ทุกหน้าเช็คสถานะล็อกอินได้ */}
+        <AuthProvider>
+          
+          {/* ส่วนหัวเว็บ (แยกเป็น Component แล้ว) */}
+          <SiteHeader />
+
+          {/* เนื้อหาหลัก */}
+          <main>
+            {children}
+          </main>
+
+          {/* Popup Login (ซ่อนอยู่ จะโชว์เมื่อกดปุ่มหรือถูกเรียก) */}
+          <LoginModal />
+
+        </AuthProvider>
       </body>
     </html>
   );

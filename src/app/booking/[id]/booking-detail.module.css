@@ -1,41 +1,49 @@
 .container {
-  max-width: 1000px;
+  max-width: 1100px;
   margin: 0 auto;
   padding: 20px;
+  font-family: 'Sarabun', sans-serif;
 }
 
 .backBtn {
   background: none;
   border: none;
-  color: #3498db;
+  color: #64748b;
   cursor: pointer;
   font-size: 16px;
   padding: 10px 0;
   margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  transition: color 0.2s;
 
   &:hover {
-    text-decoration: underline;
+    color: #334155;
+    text-decoration: none;
   }
 }
 
 .content {
   display: grid;
-  grid-template-columns: 1fr 300px;
+  grid-template-columns: 1fr 350px;
   gap: 30px;
   align-items: start;
 }
 
 .mainInfo {
   background: white;
-  border-radius: 8px;
+  border-radius: 12px;
   padding: 30px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
 }
 
 .mainInfo h1 {
-  color: #2c3e50;
-  margin-bottom: 20px;
-  font-size: 32px;
+  color: #1e293b;
+  margin: 0 0 25px 0;
+  font-size: 28px;
+  border-bottom: 1px solid #e2e8f0;
+  padding-bottom: 15px;
 }
 
 .infoGrid {
@@ -47,65 +55,79 @@
 
 .infoItem {
   padding: 15px;
-  background: #f8f9fa;
-  border-radius: 6px;
+  background: #f8fafc;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
 }
 
 .infoItem label {
   display: block;
-  color: #7f8c8d;
-  font-size: 12px;
-  font-weight: bold;
+  color: #64748b;
+  font-size: 13px;
+  font-weight: 600;
   margin-bottom: 5px;
   text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .infoItem span {
   display: block;
-  color: #2c3e50;
+  color: #334155;
   font-size: 18px;
-  font-weight: bold;
+  font-weight: 600;
 }
 
+/* ✅ ปรับปรุงส่วนสถานะให้รองรับ maintenance */
 .status {
-  padding: 5px 10px;
-  border-radius: 4px;
+  padding: 4px 12px;
+  border-radius: 20px;
   font-size: 14px;
   display: inline-block;
+  font-weight: bold;
 
   &.available {
-    background: #27ae60;
-    color: white;
-  }
-
-  &.booked {
-    background: #e74c3c;
-    color: white;
+    background: #dcfce7;
+    color: #166534;
+    border: 1px solid #bbf7d0;
   }
 
   &.reserved {
-    background: #f39c12;
-    color: white;
+    background: #fee2e2;
+    color: #991b1b;
+    border: 1px solid #fecaca;
+  }
+
+  /* เพิ่มสถานะปิดปรับปรุง */
+  &.maintenance {
+    background: #f1f5f9;
+    color: #475569;
+    border: 1px solid #cbd5e1;
   }
 }
 
 .price {
-  color: #27ae60;
+  color: #2563eb !important;
   font-size: 20px;
 }
 
 .description {
   margin-bottom: 30px;
   padding: 20px;
-  background: #ecf0f1;
-  border-left: 4px solid #3498db;
-  border-radius: 4px;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
 }
 
 .description h3,
 .amenities h3 {
-  color: #2c3e50;
-  margin-bottom: 10px;
+  color: #334155;
+  margin-bottom: 15px;
+  font-size: 18px;
+}
+
+.description p {
+  color: #475569;
+  line-height: 1.6;
 }
 
 .amenities {
@@ -115,14 +137,29 @@
 .amenities ul {
   list-style: none;
   padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 10px;
 }
 
 .amenities li {
-  padding: 8px 0;
-  border-bottom: 1px solid #ecf0f1;
-  color: #555;
+  padding: 8px 12px;
+  background: #f1f5f9;
+  border-radius: 6px;
+  color: #475569;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
 }
 
+.amenities li::before {
+  content: "✓";
+  color: #22c55e;
+  margin-right: 8px;
+  font-weight: bold;
+}
+
+/* Sidebar */
 .sidebar {
   display: flex;
   flex-direction: column;
@@ -133,79 +170,88 @@
 
 .bookingCard {
   background: white;
-  border-radius: 8px;
-  padding: 20px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
+  padding: 25px;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
   text-align: center;
+  border: 1px solid #e2e8f0;
 }
 
 .bookingCard h3 {
-  color: #2c3e50;
-  margin-bottom: 15px;
+  color: #1e293b;
+  margin-bottom: 20px;
+  font-size: 20px;
 }
 
 .bookBtn {
   width: 100%;
-  padding: 12px;
-  background: #3498db;
+  padding: 14px;
+  background: #2563eb;
   color: white;
   border: none;
-  border-radius: 6px;
+  border-radius: 8px;
   cursor: pointer;
   font-size: 16px;
   font-weight: bold;
-  transition: background 0.3s;
+  transition: all 0.2s;
+  box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2);
 
   &:hover {
-    background: #2980b9;
+    background: #1d4ed8;
+    transform: translateY(-2px);
+    box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.3);
   }
 }
 
 .unavailable {
-  color: #e74c3c;
+  color: #ef4444;
   font-weight: bold;
+  background: #fef2f2;
+  padding: 10px;
+  border-radius: 6px;
+  border: 1px dashed #fecaca;
 }
 
 .locationInfo {
   background: white;
-  border-radius: 8px;
+  border-radius: 12px;
   padding: 20px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 }
 
 .locationInfo h3 {
-  color: #2c3e50;
+  color: #334155;
   margin-bottom: 10px;
-  font-size: 14px;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .locationInfo p {
-  color: #555;
+  color: #64748b;
+  line-height: 1.5;
+  font-size: 14px;
 }
 
+/* Loading & Not Found */
 .notFound {
   text-align: center;
-  padding: 60px 20px;
+  padding: 80px 20px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 }
 
 .notFound h2 {
-  color: #e74c3c;
-  margin-bottom: 20px;
-}
-
-.notFound button {
-  padding: 10px 20px;
-  background: #3498db;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
+  color: #ef4444;
+  margin-bottom: 15px;
 }
 
 .loading {
   text-align: center;
   padding: 60px 20px;
-  color: #3498db;
+  color: #64748b;
   font-size: 18px;
 }
 
@@ -224,5 +270,7 @@
 
   .sidebar {
     position: static;
+    order: -1; /* ให้ปุ่มจองขึ้นก่อนรายละเอียดบนมือถือ */
+    margin-bottom: 20px;
   }
 }
