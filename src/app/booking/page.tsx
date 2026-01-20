@@ -187,9 +187,7 @@ export default function BookingPage() {
             <div className={styles.sidewalkCard}>
               {isSystemOpen && selectedLot ? (
                  <BookingForm 
-                   selectedLot={selectedLot} 
-                   onSubmit={handleSubmit} 
-                   isLoading={isSubmitting}
+                   selectedLot={selectedLot}
                  />
               ) : (
                  <div className={styles.placeholder}>

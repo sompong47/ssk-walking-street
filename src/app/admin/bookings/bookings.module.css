@@ -1,27 +1,53 @@
+/* Container & Layout */
 .container {
-  background: white;
-  border-radius: 10px;
-  padding: 20px;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+  padding: 24px;
+  background: #f8fafc;
+  min-height: 100vh;
 }
 
 .header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
+  margin-bottom: 24px;
+  background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+  padding: 20px 24px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.header h1 {
+  color: white;
+  font-size: 24px;
+  font-weight: 600;
+  margin: 0;
 }
 
 .refreshBtn {
-  background: #f1f5f9;
-  border: 1px solid #cbd5e1;
-  padding: 8px 15px;
-  border-radius: 5px;
+  background: #3b82f6;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
   cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.3s ease;
 }
 
+.refreshBtn:hover {
+  background: #2563eb;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+  transform: translateY(-2px);
+}
+
+/* Table Wrapper */
 .tableWrapper {
-  overflow-x: auto;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  margin-bottom: 24px;
 }
 
 .table {
@@ -30,62 +56,272 @@
   font-size: 14px;
 }
 
-.table th {
-  text-align: left;
-  background: #f8fafc;
-  padding: 12px;
+.table thead {
+  background: #f1f5f9;
   border-bottom: 2px solid #e2e8f0;
-  color: #64748b;
+}
+
+.table th {
+  padding: 16px;
+  text-align: left;
+  font-weight: 600;
+  color: #334155;
+  white-space: nowrap;
+}
+
+.table tbody tr {
+  border-bottom: 1px solid #e2e8f0;
+  transition: background-color 0.2s ease;
+}
+
+.table tbody tr:hover {
+  background-color: #f8fafc;
 }
 
 .table td {
-  padding: 12px;
-  border-bottom: 1px solid #f1f5f9;
-  vertical-align: middle;
+  padding: 16px;
+  color: #334155;
 }
 
+/* Lot Badge */
 .lotBadge {
-  background: #e0f2fe;
-  color: #0369a1;
+  display: inline-block;
+  background: #dbeafe;
+  color: #0c4a6e;
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-weight: 600;
+  font-size: 13px;
+}
+
+/* Status Tags */
+.tagGreen {
+  color: #15803d;
+  font-weight: 600;
+  font-size: 13px;
+  background: #dcfce7;
   padding: 4px 8px;
   border-radius: 4px;
-  font-weight: bold;
+  display: inline-block;
 }
 
-.status {
+.tagOrange {
+  color: #c2410c;
+  font-weight: 600;
+  font-size: 13px;
+  background: #ffedd5;
   padding: 4px 8px;
-  border-radius: 20px;
-  font-size: 12px;
-  font-weight: bold;
+  border-radius: 4px;
+  display: inline-block;
 }
-.status.pending { background: #fff7ed; color: #c2410c; }
-.status.confirmed { background: #f0fdf4; color: #15803d; }
-.status.cancelled { background: #fef2f2; color: #b91c1c; }
 
+.tagGray {
+  color: #64748b;
+  font-size: 13px;
+  background: #f1f5f9;
+  padding: 4px 8px;
+  border-radius: 4px;
+  display: inline-block;
+}
+
+.tagRed {
+  color: #b91c1c;
+  font-weight: 600;
+  font-size: 13px;
+  background: #fee2e2;
+  padding: 4px 8px;
+  border-radius: 4px;
+  display: inline-block;
+}
+
+/* Status Badge */
+.status {
+  display: inline-block;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.status.pending {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.status.confirmed {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.status.cancelled {
+  background: #fecaca;
+  color: #7f1d1d;
+}
+
+.status.completed {
+  background: #bfdbfe;
+  color: #1e40af;
+}
+
+/* Actions */
 .actions {
   display: flex;
-  gap: 5px;
+  gap: 8px;
+  flex-wrap: wrap;
 }
 
-.approveBtn {
-  background: #22c55e;
+.checkSlipBtn {
+  background: #3b82f6;
   color: white;
   border: none;
-  padding: 5px 10px;
-  border-radius: 4px;
+  padding: 8px 12px;
+  border-radius: 6px;
   cursor: pointer;
-  font-size: 12px;
+  font-size: 13px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.checkSlipBtn:hover {
+  background: #2563eb;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+  transform: translateY(-2px);
 }
 
 .rejectBtn {
   background: #ef4444;
   color: white;
   border: none;
-  padding: 5px 10px;
-  border-radius: 4px;
+  padding: 8px 12px;
+  border-radius: 6px;
   cursor: pointer;
-  font-size: 12px;
+  font-size: 13px;
+  font-weight: 500;
+  transition: all 0.3s ease;
 }
 
-.approveBtn:hover { background: #16a34a; }
-.rejectBtn:hover { background: #dc2626; }
+.rejectBtn:hover {
+  background: #dc2626;
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+  transform: translateY(-2px);
+}
+
+/* Modal Styles */
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(15, 23, 42, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+  backdrop-filter: blur(4px);
+}
+
+.modal {
+  background: white;
+  padding: 28px;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 480px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+}
+
+.modal h3 {
+  margin: 0 0 20px 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.slipWrapper {
+  background: #f1f5f9;
+  text-align: center;
+  margin-bottom: 20px;
+  border-radius: 8px;
+  overflow: hidden;
+  min-height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.slipImage {
+  max-width: 100%;
+  max-height: 400px;
+  object-fit: contain;
+  display: block;
+}
+
+.noSlip {
+  color: #94a3b8;
+  font-size: 14px;
+}
+
+.slipInfo {
+  margin-bottom: 20px;
+  font-size: 14px;
+  background: #f0f9ff;
+  padding: 16px;
+  border-radius: 6px;
+  border-left: 4px solid #3b82f6;
+}
+
+.slipInfo p {
+  margin: 8px 0;
+  color: #334155;
+}
+
+.slipInfo strong {
+  color: #1e293b;
+}
+
+.modalActions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.approveBtnFull {
+  width: 100%;
+  padding: 12px;
+  background: #22c55e;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+.approveBtnFull:hover {
+  background: #16a34a;
+  box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
+  transform: translateY(-2px);
+}
+
+.rejectBtnFull {
+  width: 100%;
+  padding: 12px;
+  background: #ef4444;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+.rejectBtnFull:hover {
+  background: #dc2626;
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+  transform: translateY(-2px);
+}

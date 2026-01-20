@@ -1,0 +1,152 @@
+.container {
+  min-height: 100vh;
+  background-color: #f1f5f9;
+  padding: 40px 20px;
+  font-family: 'Sarabun', sans-serif;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.searchCard {
+  background: white;
+  padding: 40px;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+  text-align: center;
+  width: 100%;
+  max-width: 500px;
+  margin-bottom: 30px;
+}
+
+.searchCard h1 {
+  color: #1e293b;
+  margin-bottom: 10px;
+}
+
+.searchCard p {
+  color: #64748b;
+  margin-bottom: 25px;
+}
+
+.searchForm {
+  display: flex;
+  gap: 10px;
+}
+
+.input {
+  flex: 1;
+  padding: 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 1rem;
+}
+
+.searchBtn {
+  padding: 12px 25px;
+  background: #2563eb;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.searchBtn:hover {
+  background: #1d4ed8;
+}
+
+.resultContainer {
+  width: 100%;
+  max-width: 800px;
+}
+
+.resultContainer h3 {
+  color: #334155;
+  margin-bottom: 20px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.bookingItem {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  border: 1px solid #e2e8f0;
+  transition: transform 0.2s;
+}
+
+.bookingItem:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.itemHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+  padding-bottom: 10px;
+  border-bottom: 1px dashed #e2e8f0;
+}
+
+.lotBadge {
+  background: #eff6ff;
+  color: #2563eb;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-weight: bold;
+}
+
+.itemBody p {
+  margin: 5px 0;
+  color: #475569;
+  font-size: 0.95rem;
+}
+
+.viewBtn {
+  width: 100%;
+  margin-top: 15px;
+  padding: 10px;
+  background: #f8fafc;
+  border: 1px solid #cbd5e1;
+  color: #475569;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.viewBtn:hover {
+  background: #f1f5f9;
+  border-color: #94a3b8;
+}
+
+.notFound {
+  text-align: center;
+  padding: 40px;
+  background: white;
+  border-radius: 12px;
+  color: #64748b;
+}
+
+/* Badge Colors */
+.badge {
+  padding: 4px 8px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+}
+.pending { background: #fef9c3; color: #854d0e; }
+.paid { background: #dbeafe; color: #1e40af; }
+.confirmed { background: #dcfce7; color: #166534; }
+.cancelled { background: #f1f5f9; color: #94a3b8; }
+
+@media (max-width: 600px) {
+  .searchForm {
+    flex-direction: column;
+  }
+}

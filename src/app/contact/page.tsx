@@ -68,15 +68,14 @@ export default function ContactPage() {
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
-    // Clear error when user starts typing
     if (errors[name as keyof FormErrors]) {
       setErrors((prev) => ({ ...prev, [name]: undefined }));
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
+  // 🔥 แก้ไข: ไม่รับ event (e) และไม่ต้อง preventDefault เพราะเราไม่ใช้ form แล้ว
+  const handleSend = async () => {
+    // 1. ตรวจสอบความถูกต้อง
     if (!validateForm()) {
       return;
     }
@@ -84,21 +83,29 @@ export default function ContactPage() {
     setLoading(true);
 
     try {
-      const response = await fetch('/api/contact', {
+      // ✅ ยิง API ของจริง (ส่งข้อมูลไปที่ Server)
+      const res = await fetch('/api/contact', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),
       });
 
-      if (response.ok) {
+      const data = await res.json();
+
+      if (data.success) {
+        // ถ้าสำเร็จ: โชว์ข้อความแจ้งเตือน และล้างฟอร์ม
         setSubmitted(true);
         setFormData({ name: '', email: '', phone: '', subject: '', message: '' });
+        
+        // ซ่อนข้อความแจ้งเตือนหลังผ่านไป 5 วิ
         setTimeout(() => setSubmitted(false), 5000);
       } else {
-        throw new Error('Failed to submit');
+        alert('ส่งข้อความไม่สำเร็จ: ' + (data.message || 'กรุณาลองใหม่'));
       }
+
     } catch (error) {
-      alert('เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง');
+      console.error('Contact Error:', error);
+      alert('เกิดข้อผิดพลาดในการเชื่อมต่อ Server');
     } finally {
       setLoading(false);
     }
@@ -224,7 +231,8 @@ export default function ContactPage() {
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className={styles.form}>
+          {/* 🔥 แก้ไข: เปลี่ยน <form> เป็น <div> */}
+          <div className={styles.form}>
             <div className={styles.formRow}>
               <div className={styles.formGroup}>
                 <label>
@@ -333,7 +341,13 @@ export default function ContactPage() {
               </div>
             </div>
 
-            <button type="submit" className={styles.submitBtn} disabled={loading}>
+            {/* 🔥 แก้ไข: ปุ่มเป็น type="button" และใส่ onClick */}
+            <button 
+              type="button" 
+              className={styles.submitBtn} 
+              disabled={loading}
+              onClick={handleSend}
+            >
               {loading ? (
                 <>
                   <svg className={styles.spinner} width="20" height="20" viewBox="0 0 24 24">
@@ -351,7 +365,7 @@ export default function ContactPage() {
                 </>
               )}
             </button>
-          </form>
+          </div>
         </div>
 
         {/* Sidebar Info */}
